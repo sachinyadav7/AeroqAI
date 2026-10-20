@@ -463,7 +463,37 @@ Automates release governance by establishing pre-deployment quality gates. Evalu
 | Minimum Composite Triad Quality | `>=` | `0.65` | `0.7200` | ✅ PASS |
 | Minimum Benchmark Pass Rate (%) | `>=` | `50.0` | `50.0000` | ✅ PASS |
 
-**Final Verdict: ✅ PASSED (RELEASE APPROVED — Exit Code 0)**
+---
+
+### Module 6: Interactive RAG Debugger (Query Tracing & Waterfall Profiling)
+
+#### 🔹 Architecture & Purpose:
+Gives AI engineers and auditors white-box visibility into every stage of RAG query execution. Profiles stage-by-stage latencies, vector similarity score transformations, cross-encoder neural rerank shifts (climb/drop deltas), context assembly structure, token accounting, and optional real-time Triad evaluation.
+
+#### 🔹 Key Components & Data Contracts:
+- **Data Contracts** ([`AeroqAI/models/trace.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/trace.py)):
+  - `ChunkTraceItem`: Audit record per passage tracking initial similarity score, rank before reranking, cross-encoder score, rank shift ($\Delta \text{Rank}$), and retention status (`RETAINED` vs `PRUNED`).
+  - `RetrievalStageTrace`: Captures retrieval latency, requested Top-K, and candidate passage list.
+  - `RerankStageTrace`: Captures cross-encoder model name, inference time, and reranked passage ranking.
+  - `PromptAssemblyStageTrace`: Profiles system instructions, context character lengths, and prompt previews.
+  - `GenerationStageTrace`: Tracks generation model, inference time, answer string, citations, and input/output token estimates.
+  - `QueryExecutionTrace`: Unified trace bundle featuring `format_trace_report()` which renders a Markdown diagnostic waterfall.
+- **Debugger Engine** ([`AeroqAI/modules/module_6_debugger/debugger.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_6_debugger/debugger.py)):
+  - `RAGDebugger.trace_query(...)`: Seamlessly instruments Vector Retrieval, Cross-Encoder Reranking, Prompt Construction, LLM Generation, and Triad Evaluation with microsecond precision.
+- **Interactive CLI Runner** ([`run_debugger_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_debugger_demo.py)):
+  - Allows engineers to trace queries from the terminal with real-time waterfall timing and passage shift tables.
+  - Exports full query trace to [`query_trace_report.json`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/query_trace_report.json).
+
+#### 🔹 Live Diagnostic Trace Output:
+- **Query**: *"How many days of annual leave can be carried over into the next consecutive calendar year?"*
+- **Total Latency**: `1849.3 ms`
+- **Waterfall**:
+  - Vector Retrieval: `11.8 ms`
+  - Cross-Encoder Rerank: `141.2 ms`
+  - Prompt Assembly: `0.01 ms`
+  - LLM Generation: `1694.8 ms` (`openai/gpt-oss-120b` via Groq LPU)
+- **Score Transition**: `hr_policy.pdf:p3` scored `0.4754` retrieval similarity and `+2.5121` rerank score, retained in final context window.
+- **Token Accounting**: `443` input tokens, `12` output tokens.
 
 ---
 
@@ -508,12 +538,17 @@ Automates release governance by establishing pre-deployment quality gates. Evalu
 - [x] GitHub Actions workflow configuration (`.github/workflows/ci.yml`).
 - [x] Unit test coverage (`tests/test_quality_gate.py`).
 
-### Module 6: Interactive RAG Debugger
-- [ ] Detailed step-by-step trace inspection per query (retrieved chunks, scores, prompt assembled, token usage).
-- [ ] Interactive query inspector CLI & report exporter.
+### Module 6: Interactive RAG Debugger (100% Complete)
+- [x] End-to-end trace schema (`QueryExecutionTrace`, `ChunkTraceItem`, `RetrievalStageTrace`, `RerankStageTrace`, `PromptAssemblyStageTrace`, `GenerationStageTrace`).
+- [x] Step-by-step query profiler with latency waterfall timing (`RAGDebugger.trace_query`).
+- [x] Cross-encoder rank shift calculation ($\Delta \text{Rank}$) and candidate pruning tracking.
+- [x] Real-time ground truth evaluation triad integration.
+- [x] Interactive query inspector CLI & JSON report exporter (`run_debugger_demo.py`, `query_trace_report.json`).
+- [x] Unit test coverage (`tests/test_debugger.py`).
 
 ### Module 7: Full-Stack Platform Integration
 - [ ] Next.js frontend + Java/Spring Boot & FastAPI backend + PostgreSQL (`pgvector`).
+
 
 
 

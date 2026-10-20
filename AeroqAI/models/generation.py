@@ -12,6 +12,10 @@ class SourceCitation(BaseModel):
     relevance_score: Optional[float] = Field(None, description="Retrieval or reranking score")
     excerpt: Optional[str] = Field(None, description="Brief snippet of the cited chunk content")
 
+    def to_citation_label(self) -> str:
+        """Format as a short citation tag."""
+        return f"{self.source_file}:p{self.page_number}"
+
 
 class GenerationResult(BaseModel):
     """Structured response contract for LLM generation in the RAG pipeline."""

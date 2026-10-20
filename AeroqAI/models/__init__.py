@@ -12,6 +12,14 @@ from AeroqAI.models.quality_gate import (
     QualityGateConfig,
     QualityGateResult
 )
+from AeroqAI.models.trace import (
+    ChunkTraceItem,
+    RetrievalStageTrace,
+    RerankStageTrace,
+    PromptAssemblyStageTrace,
+    GenerationStageTrace,
+    QueryExecutionTrace
+)
 
 __all__ = [
     "RawDocument",
@@ -40,6 +48,12 @@ __all__ = [
     "QualityGateRule",
     "RuleEvaluation",
     "QualityGateConfig",
-    "QualityGateResult"
+    "QualityGateResult",
+    "ChunkTraceItem",
+    "RetrievalStageTrace",
+    "RerankStageTrace",
+    "PromptAssemblyStageTrace",
+    "GenerationStageTrace",
+    "QueryExecutionTrace"
 ]
 

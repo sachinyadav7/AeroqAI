@@ -1,0 +1,177 @@
+{
+  "trace_id": "trace_16cb7c01",
+  "timestamp": "2026-10-20T18:27:50.862741+00:00",
+  "query": "How many days of annual leave can be carried over into the next consecutive calendar year?",
+  "total_latency_ms": 1849.29,
+  "retrieval": {
+    "top_k_requested": 5,
+    "total_candidates_found": 5,
+    "retrieved_chunks": [
+      {
+        "chunk_id": "chunk_doc_hr_policy_p3_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 3,
+        "content_snippet": "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity a",
+        "char_length": 712,
+        "initial_retrieval_score": 0.4754,
+        "initial_rank": 1,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p10_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 10,
+        "content_snippet": "Separation, Resignation & Severance\nGuidelines\nSection 10: Offboarding Procedures & Termination Notice\nFair and transparent procedures govern employme",
+        "char_length": 699,
+        "initial_retrieval_score": 0.3268,
+        "initial_rank": 2,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p8_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 8,
+        "content_snippet": "Learning & Development Stipends\nSection 8: Professional Growth & Tuition Reimbursement\nGlobal Tech Inc. invests in continuous skill enhancement and ed",
+        "char_length": 544,
+        "initial_retrieval_score": 0.2151,
+        "initial_rank": 3,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p7_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 7,
+        "content_snippet": "Performance Reviews & Career Progression\nSection 7: Performance Management & Salary Reviews\nFair evaluation and continuous feedback foster individual ",
+        "char_length": 635,
+        "initial_retrieval_score": 0.2058,
+        "initial_rank": 4,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p2_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 2,
+        "content_snippet": "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designe",
+        "char_length": 689,
+        "initial_retrieval_score": 0.1835,
+        "initial_rank": 5,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      }
+    ],
+    "latency_ms": 11.79
+  },
+  "rerank": {
+    "model_name": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "top_k_retained": 2,
+    "reranked_chunks": [
+      {
+        "chunk_id": "chunk_doc_hr_policy_p3_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 3,
+        "content_snippet": "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity a",
+        "char_length": 712,
+        "initial_retrieval_score": 0.4754,
+        "initial_rank": 1,
+        "rerank_score": 2.5121,
+        "final_rank": 1,
+        "rank_delta": 0,
+        "retained_in_context": true
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p10_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 10,
+        "content_snippet": "Separation, Resignation & Severance\nGuidelines\nSection 10: Offboarding Procedures & Termination Notice\nFair and transparent procedures govern employme",
+        "char_length": 699,
+        "initial_retrieval_score": 0.3268,
+        "initial_rank": 2,
+        "rerank_score": -7.2702,
+        "final_rank": 2,
+        "rank_delta": 0,
+        "retained_in_context": true
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p8_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 8,
+        "content_snippet": "Learning & Development Stipends\nSection 8: Professional Growth & Tuition Reimbursement\nGlobal Tech Inc. invests in continuous skill enhancement and ed",
+        "char_length": 544,
+        "initial_retrieval_score": 0.2151,
+        "initial_rank": 3,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p7_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 7,
+        "content_snippet": "Performance Reviews & Career Progression\nSection 7: Performance Management & Salary Reviews\nFair evaluation and continuous feedback foster individual ",
+        "char_length": 635,
+        "initial_retrieval_score": 0.2058,
+        "initial_rank": 4,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      },
+      {
+        "chunk_id": "chunk_doc_hr_policy_p2_0",
+        "source_file": "hr_policy.pdf",
+        "page_number": 2,
+        "content_snippet": "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designe",
+        "char_length": 689,
+        "initial_retrieval_score": 0.1835,
+        "initial_rank": 5,
+        "rerank_score": null,
+        "final_rank": null,
+        "rank_delta": null,
+        "retained_in_context": false
+      }
+    ],
+    "latency_ms": 141.19
+  },
+  "prompt_assembly": {
+    "context_chunks_count": 2,
+    "context_total_characters": 1411,
+    "system_prompt": "You are AeroqAI, an enterprise compliance and policy expert assistant. Answer the query strictly based on the provided document contexts. If the answer cannot be found, state clearly that the documentation does not contain it.",
+    "assembled_prompt_preview": "Context Information:\nPaid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar ...",
+    "latency_ms": 0.009
+  },
+  "generation": {
+    "provider": "groq",
+    "model_name": "openai/gpt-oss-120b",
+    "generated_answer": "I cannot find the answer in the provided documents.",
+    "source_citations": [
+      "hr_policy.pdf:p3",
+      "hr_policy.pdf:p10"
+    ],
+    "estimated_prompt_tokens": 443,
+    "estimated_completion_tokens": 12,
+    "latency_ms": 1694.78
+  },
+  "evaluation": {
+    "faithfulness": 1.0,
+    "correctness": 0.0,
+    "precision": 1.0,
+    "overall": 0.6667,
+    "faithfulness_reasoning": "Properly stated inability to find answer in context.",
+    "correctness_reasoning": "Recall: 0.0%, Jaccard: 0.0%, Matched 0/12 concepts."
+  }
+}
