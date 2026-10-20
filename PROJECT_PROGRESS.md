@@ -31,17 +31,20 @@ Major-Project/
 ├── requirements.txt                    # Project dependencies
 ├── run_loader_demo.py                  # Module 1 Stage 1 interactive demo script
 ├── run_cleaner_demo.py                 # Module 1 Stage 2 interactive demo script
+├── run_chunker_demo.py                 # Module 1 Stage 3 interactive demo script
 ├── AeroqAI/                            # Core AeroqAI Python package
 │   ├── __init__.py                     # Package entry point
 │   ├── models/                         # Structured Pydantic data models
 │   │   ├── __init__.py
-│   │   └── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
+│   │   ├── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
+│   │   └── chunk.py                    # ChunkMetadata, TextChunk
 │   ├── modules/                        # Core system modules
 │   │   ├── __init__.py
 │   │   └── module_1_rag/               # Module 1: Core RAG Pipeline
 │   │       ├── __init__.py
 │   │       ├── document_loader.py      # Stage 1: PDF ingestion & metadata extraction
-│   │       └── text_cleaner.py         # Stage 2: Normalization & cleaning engine
+│   │       ├── text_cleaner.py         # Stage 2: Normalization & cleaning engine
+│   │       └── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
 │   └── data/
 │       └── sample_docs/
 │           └── hr_policy.pdf           # 10-page enterprise test document
@@ -49,7 +52,8 @@ Major-Project/
 │   └── generate_sample_pdf.py          # Script generating multi-page test PDF
 └── tests/                              # Automated test suites
     ├── test_document_loader.py         # Stage 1 unit tests
-    └── test_text_cleaner.py            # Stage 2 unit tests
+    ├── test_text_cleaner.py            # Stage 2 unit tests
+    └── test_text_chunker.py            # Stage 3 unit tests
 ```
 
 ---
@@ -127,6 +131,27 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ---
 
+#### 🔹 Stage 3: Text Chunker & Token Segmenter
+- **Files**:
+  - Model: [`AeroqAI/models/chunk.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/chunk.py)
+  - Engine: [`AeroqAI/modules/module_1_rag/text_chunker.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_1_rag/text_chunker.py)
+- **Tech Stack**: Python, Pydantic v2
+- **Understanding & Purpose**:
+  RAG systems cannot embed entire multi-page documents at once; documents must be broken down into discrete chunks. If chunks are too large, irrelevant context pollutes the prompt; if too small, key context is severed. 
+  `TextChunker`:
+  - **Strategies Supported**:
+    - `recursive`: Splits text hierarchically using `["\n\n", "\n", ". ", " ", ""]` to preserve paragraphs and full sentences without breaking in the middle of words or ideas.
+    - `fixed`: Rigid sliding-window slicing with overlap for strict token benchmarking.
+  - **Overlapping Context**: Maintains configurable `chunk_overlap` between consecutive chunks so concepts crossing boundary lines are not lost during retrieval.
+  - **Rich Linkage & Metadata**: Each `TextChunk` records `chunk_id` (`chunk_{doc_id}_{idx}`), parent `doc_id`, source page number, character start/end offsets, word count, estimated token counts, and parent configuration values.
+  - **Optimization Ready**: Exposes exact parameters needed by Module 3 (RAG Optimizer) to search over chunk sizes (e.g. 250, 500, 1000) and overlap configurations.
+- **Verification & Demo**:
+  - Script: [`run_chunker_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_chunker_demo.py)
+  - Run command: `python run_chunker_demo.py`
+  - Unit tests: [`tests/test_text_chunker.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/tests/test_text_chunker.py) (6 tests covering parameter validation, empty/whitespace docs, short doc handling, recursive splitting, fixed sliding windows, and multi-doc batches).
+
+---
+
 #### 🔹 Synthetic Test Data Generation
 - **File**: [`scripts/generate_sample_pdf.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/scripts/generate_sample_pdf.py)
 - **Tech Stack**: `reportlab`
@@ -137,11 +162,10 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ## 🚀 Next Stages & Roadmap
 
-### Module 1: RAG Pipeline (Remaining Stages)
-- [ ] **Stage 3: Text Chunker** (`text_chunker.py`):
-  - `TextChunk` data model with parent document linkage.
-  - Recursive character chunking & fixed-size chunking.
-  - Configurable `chunk_size` and `chunk_overlap`.
+### Module 1: RAG Pipeline
+- [x] **Stage 1: Document Loader** (`document_loader.py`) — *Completed & Tested*
+- [x] **Stage 2: Text Cleaner & Normalizer** (`text_cleaner.py`) — *Completed & Tested*
+- [x] **Stage 3: Text Chunker** (`text_chunker.py`) — *Completed & Tested*
 - [ ] **Stage 4: Embedding Generator** (`embedding_generator.py`):
   - Vector representation of chunks using SentenceTransformers / HuggingFace / OpenAI models.
 - [ ] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`):

@@ -1,5 +1,12 @@
 """Data models for AeroqAI pipeline stages."""
 from AeroqAI.models.document import RawDocument, CleanedDocument, DocumentMetadata
+from AeroqAI.models.chunk import TextChunk, ChunkMetadata
 
-__all__ = ["RawDocument", "CleanedDocument", "DocumentMetadata"]
+__all__ = [
+    "RawDocument",
+    "CleanedDocument",
+    "DocumentMetadata",
+    "TextChunk",
+    "ChunkMetadata"
+]
 
