@@ -6,6 +6,7 @@ with LLM providers (Mock for fast offline testing/CI, OpenAI for live production
 import os
 import re
 import time
+from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union, Dict, Any, Tuple
 
@@ -316,6 +317,42 @@ class OpenAIGenerator(BaseLLMGenerator):
         )
 
 
+class GroqGenerator(OpenAIGenerator):
+    """Ultra-fast production LLM generator powered by Groq LPU inference."""
+
+    def __init__(
+        self,
+        model_name: str = "openai/gpt-oss-120b",
+        api_key: Optional[str] = None,
+        base_url: str = "https://api.groq.com/openai/v1",
+        system_prompt: Optional[str] = None,
+        user_template: Optional[str] = None,
+        temperature: float = 0.0,
+        max_tokens: int = 1000
+    ) -> None:
+        # Check explicit key or GROQ_API_KEY / OPENAI_API_KEY
+        resolved_key = api_key or os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+        if not resolved_key and Path(".env").exists():
+            try:
+                for line in Path(".env").read_text(encoding="utf-8").splitlines():
+                    if line.startswith("GROQ_API_KEY="):
+                        resolved_key = line.split("=", 1)[1].strip().strip("'\"")
+                        break
+            except Exception:
+                pass
+
+        super().__init__(
+            model_name=model_name,
+            api_key=resolved_key,
+            base_url=base_url,
+            system_prompt=system_prompt,
+            user_template=user_template,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        self.provider = "groq"
+
+
 def get_llm_generator(
     provider: str = "mock",
     model_name: Optional[str] = None,
@@ -333,7 +370,12 @@ def get_llm_generator(
             model_name=model_name or "gpt-4o-mini",
             **kwargs
         )
+    elif provider_lower in ("groq", "lpu"):
+        return GroqGenerator(
+            model_name=model_name or "openai/gpt-oss-120b",
+            **kwargs
+        )
     else:
         raise ValueError(
-            f"Unsupported LLM generator provider '{provider}'. Supported providers: 'mock', 'openai'."
+            f"Unsupported LLM generator provider '{provider}'. Supported providers: 'mock', 'openai', 'groq'."
         )

@@ -248,3 +248,40 @@ def test_openai_generator_mocked_call():
         assert result.completion_tokens == 18
         assert result.total_tokens == 138
         assert result.grounded is True
+
+
+def test_groq_generator_factory_and_call():
+    """Verify GroqGenerator resolves via factory and invokes endpoint with groq provider."""
+    from AeroqAI.modules.module_1_rag.generator import GroqGenerator
+
+    mock_choice = MagicMock()
+    mock_choice.message.content = "Employees accrue 20 days paid leave."
+
+    mock_usage = MagicMock()
+    mock_usage.prompt_tokens = 95
+    mock_usage.completion_tokens = 12
+    mock_usage.total_tokens = 107
+
+    mock_response = MagicMock()
+    mock_response.choices = [mock_choice]
+    mock_response.usage = mock_usage
+
+    with patch("openai.OpenAI") as mock_openai_cls:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = mock_response
+        mock_openai_cls.return_value = mock_client
+
+        gen = get_llm_generator("groq", api_key="gsk-test-key")
+        assert isinstance(gen, GroqGenerator)
+        assert gen.provider == "groq"
+        assert gen.base_url == "https://api.groq.com/openai/v1"
+
+        result = gen.generate(
+            query="Leave policy?",
+            context="[Source 1: hr.pdf | Page 3 | Chunk: c1]\n20 days paid leave."
+        )
+        assert result.provider == "groq"
+        assert result.answer == "Employees accrue 20 days paid leave."
+        assert result.total_tokens == 107
+        assert result.grounded is True
+

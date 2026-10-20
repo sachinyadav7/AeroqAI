@@ -37,6 +37,7 @@ from AeroqAI.modules.module_1_rag.generator import (
     BaseLLMGenerator,
     DeterministicMockGenerator,
     OpenAIGenerator,
+    GroqGenerator,
     get_llm_generator
 )
 
@@ -65,6 +66,7 @@ __all__ = [
     "BaseLLMGenerator",
     "DeterministicMockGenerator",
     "OpenAIGenerator",
+    "GroqGenerator",
     "get_llm_generator"
 ]
 
