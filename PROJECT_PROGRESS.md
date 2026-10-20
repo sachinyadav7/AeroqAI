@@ -32,19 +32,21 @@ Major-Project/
 ├── run_loader_demo.py                  # Module 1 Stage 1 interactive demo script
 ├── run_cleaner_demo.py                 # Module 1 Stage 2 interactive demo script
 ├── run_chunker_demo.py                 # Module 1 Stage 3 interactive demo script
+├── run_embedder_demo.py                # Module 1 Stage 4 interactive demo script
 ├── AeroqAI/                            # Core AeroqAI Python package
 │   ├── __init__.py                     # Package entry point
 │   ├── models/                         # Structured Pydantic data models
 │   │   ├── __init__.py
 │   │   ├── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
-│   │   └── chunk.py                    # ChunkMetadata, TextChunk
+│   │   └── chunk.py                    # ChunkMetadata, TextChunk, EmbeddedChunk
 │   ├── modules/                        # Core system modules
 │   │   ├── __init__.py
 │   │   └── module_1_rag/               # Module 1: Core RAG Pipeline
 │   │       ├── __init__.py
 │   │       ├── document_loader.py      # Stage 1: PDF ingestion & metadata extraction
 │   │       ├── text_cleaner.py         # Stage 2: Normalization & cleaning engine
-│   │       └── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
+│   │       ├── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
+│   │       └── embedding_generator.py  # Stage 4: Pluggable vector embedding engine
 │   └── data/
 │       └── sample_docs/
 │           └── hr_policy.pdf           # 10-page enterprise test document
@@ -53,7 +55,8 @@ Major-Project/
 └── tests/                              # Automated test suites
     ├── test_document_loader.py         # Stage 1 unit tests
     ├── test_text_cleaner.py            # Stage 2 unit tests
-    └── test_text_chunker.py            # Stage 3 unit tests
+    ├── test_text_chunker.py            # Stage 3 unit tests
+    └── test_embedding_generator.py     # Stage 4 unit tests
 ```
 
 ---
@@ -152,6 +155,31 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ---
 
+#### 🔹 Stage 4: Embedding Generator & Vector Space
+- **Files**:
+  - Model: [`AeroqAI/models/chunk.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/chunk.py) (`EmbeddedChunk`)
+  - Engine: [`AeroqAI/modules/module_1_rag/embedding_generator.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_1_rag/embedding_generator.py)
+- **Tech Stack**: Python, `sentence-transformers`, `numpy`, `torch`, `openai`, Pydantic v2
+- **Understanding & Purpose**:
+  Keyword search fails when users ask questions with synonyms or conceptual phrasing. Embeddings convert text chunks into dense, mathematical vector coordinates in high-dimensional semantic space where related concepts cluster closely together.
+  `embedding_generator.py`:
+  - **Pluggable Architecture (`BaseEmbeddingGenerator`)**:
+    - `SentenceTransformerEmbedder`: Uses local HuggingFace models (`all-MiniLM-L6-v2`, 384 dimensions). Generates dense vectors locally on CPU or GPU with zero cloud API fees.
+    - `DeterministicMockEmbedder`: Pure Python + NumPy hashing-based generator (384 dimensions) that runs without downloading weights or GPUs, enabling lightning-fast unit tests and offline CI/CD test runs.
+    - `OpenAIEmbedder`: Cloud-based generator supporting `text-embedding-3-small` (1536 dimensions) and compatible endpoints.
+    - Factory function `get_embedding_generator(provider, model_name)` for automated hyperparameter tuning in Module 3 (RAG Optimizer).
+  - **Unit-Length Normalization (L2 Norm = 1.0)**:
+    - Automatically normalizes all output vectors so that expensive cosine distance calculations simplify to fast dot-products ($A \cdot B$).
+  - **Semantic Cosine Similarity**:
+    - Built-in `cosine_similarity(vec_a, vec_b)` utility to score similarity from -1.0 to +1.0.
+- **Verification & Demo**:
+  - Script: [`run_embedder_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_embedder_demo.py)
+  - Run command: `python run_embedder_demo.py`
+  - Semantic query test: *"How many days of annual paid leave do employees receive?"* correctly ranked Page 3 (Paid Time Off & Leave Rules) as the top match (#1 with 62.05% similarity).
+  - Unit tests: [`tests/test_embedding_generator.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/tests/test_embedding_generator.py) (6 tests verifying dimensions, L2 normalization, determinism, `EmbeddedChunk` mapping, cosine similarity math, and local SentenceTransformer embeddings).
+
+---
+
 #### 🔹 Synthetic Test Data Generation
 - **File**: [`scripts/generate_sample_pdf.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/scripts/generate_sample_pdf.py)
 - **Tech Stack**: `reportlab`
@@ -166,8 +194,7 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 - [x] **Stage 1: Document Loader** (`document_loader.py`) — *Completed & Tested*
 - [x] **Stage 2: Text Cleaner & Normalizer** (`text_cleaner.py`) — *Completed & Tested*
 - [x] **Stage 3: Text Chunker** (`text_chunker.py`) — *Completed & Tested*
-- [ ] **Stage 4: Embedding Generator** (`embedding_generator.py`):
-  - Vector representation of chunks using SentenceTransformers / HuggingFace / OpenAI models.
+- [x] **Stage 4: Embedding Generator** (`embedding_generator.py`) — *Completed & Tested*
 - [ ] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`):
   - In-memory & `pgvector` cosine similarity search. Top-K extraction.
 - [ ] **Stage 6: Reranker** (`reranker.py`):

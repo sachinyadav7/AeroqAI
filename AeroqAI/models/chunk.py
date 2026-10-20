@@ -49,3 +49,26 @@ class TextChunk(BaseModel):
             f"page={self.metadata.page_number} idx={self.metadata.chunk_index} "
             f"chars={self.metadata.char_count} tokens={self.metadata.token_count}>"
         )
+
+
+class EmbeddedChunk(BaseModel):
+    """
+    Structured representation of a text chunk paired with its dense vector embedding.
+    
+    This forms the exact input contract for:
+      - Stage 5: Vector Store & Retrieval (pgvector / similarity search)
+      - Stage 6: Reranker
+    """
+    chunk_id: str = Field(..., description="Unique chunk identifier")
+    content: str = Field(..., description="Text content payload of this chunk")
+    embedding: list[float] = Field(..., description="Dense numerical vector representation")
+    embedding_model: str = Field(..., description="Identifier of the embedding model used")
+    embedding_dimension: int = Field(..., description="Dimensionality of the vector (e.g., 384, 1536)")
+    metadata: ChunkMetadata = Field(..., description="Structured metadata container")
+
+    def __repr__(self) -> str:
+        return (
+            f"<EmbeddedChunk id='{self.chunk_id}' model='{self.embedding_model}' "
+            f"dim={self.embedding_dimension} page={self.metadata.page_number} "
+            f"tokens={self.metadata.token_count}>"
+        )
