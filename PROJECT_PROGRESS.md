@@ -396,9 +396,39 @@ Automates hyperparameter exploration across document chunk sizes, overlap ratios
 | `trial_003` | `800/60` | `3` | `OFF` | `0.7070` | `0.4847` | `0.7333` | `11.8ms` | ⭐ YES |
 | `trial_004` | `800/60` | `3` | `ON (2)` | `0.7338` | `0.4847` | `0.9000` | `71.9ms` | ⭐ YES |
 
-> **Key Optimization Finding**:
-> - **Best Quality Target**: `trial_004` (Chunk 800, Overlap 60, Top-K 3, Reranker ON) achieves **0.7338 Quality** and **0.9000 Context Precision** — outperforming the baseline configuration.
-> - **Lowest Latency Target**: `trial_003` (Chunk 800, Overlap 60, Top-K 3, Reranker OFF) achieves **11.8ms query latency** with strong **0.7070 Quality**.
+---
+
+### Module 4: Experiment Tracking (Run Registry & Differential Comparison)
+
+#### 🔹 Architecture & Purpose:
+Establishes a persistent experiment tracking registry and differential comparison engine. Enables data science and engineering teams to log hyperparameter runs, track quality/latency/cost metrics across git revisions, render real-time leaderboards, and execute side-by-side regression comparisons between a Baseline pipeline and a Candidate pipeline.
+
+#### 🔹 Key Components & Data Contracts:
+- **Data Contracts** ([`AeroqAI/models/experiment.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/experiment.py)):
+  - `RunMetadata`: Captures execution environment, git commit SHA (`git rev-parse --short HEAD`), runtime tags, and user identity.
+  - `RunMetrics`: Standardized scorecard container (`overall_quality_score`, `faithfulness`, `answer_correctness`, `context_precision`, `pass_rate`, `avg_latency_ms`, `total_tokens_consumed`, `estimated_cost_usd`).
+  - `ExperimentRun`: Full lifecycle run entity supporting status states (`RUNNING`, `COMPLETED`, `FAILED`), timestamps, full config, and linked benchmark reports.
+  - `RunComparison`: Evaluates differential performance ($\Delta$ Quality, $\Delta$ Faithfulness, $\Delta$ Correctness, $\Delta$ Precision, $\Delta$ Latency, $\Delta$ Cost) with automated regression detection against a specified tolerance threshold.
+- **Experiment Tracker Engine** ([`AeroqAI/modules/module_4_experiment_tracking/tracker.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_4_experiment_tracking/tracker.py)):
+  - `create_run(...)` & `log_metrics(...)`: Complete execution lifecycle tracking.
+  - `log_trial(...)`: Seamlessly ingests Module 3 `OptimizationTrial` instances into the run registry.
+  - `list_runs(...)`: Supports multi-dimensional sorting (by quality, latency, correctness, or creation date).
+  - `format_leaderboard(...)`: Generates clear markdown tables ranking all candidate configurations.
+  - `compare_runs(...)`: Computes pairwise deltas and renders markdown comparison scorecards with green/red trend badges.
+
+#### 🔹 Live Demo & Differential Comparison Results:
+- **Runner Script**: [`run_tracker_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_tracker_demo.py)
+- **Persisted Runs Directory**: `AeroqAI/data/runs/`
+- **Side-by-Side Comparison (Candidate `run_trial_004` vs. Baseline `run_trial_001`)**:
+
+| Metric | Baseline (`trial_001`) | Candidate (`trial_004`) | Delta | Trend |
+| :--- | :---: | :---: | :---: | :---: |
+| **Overall Quality** | `0.6871` | `0.7338` | `+0.0467` | 🟢 IMPROVED |
+| **Faithfulness** | `0.8923` | `0.8999` | `+0.0076` | 🟢 IMPROVED |
+| **Answer Correctness** | `0.4588` | `0.4847` | `+0.0259` | 🟢 IMPROVED |
+| **Context Precision** | `0.7333` | `0.9000` | `+0.1667` | 🟢 IMPROVED (+16.7%) |
+| **Average Latency** | `12.5ms` | `71.9ms` | `+59.4ms` | 🔴 Neural Reranker Overhead |
+| **Regression Status** | - | - | - | ✅ **CLEAR (NO REGRESSION)** |
 
 ---
 
@@ -427,19 +457,23 @@ Automates hyperparameter exploration across document chunk sizes, overlap ratios
 - [x] Live optimizer runner & JSON artifact export (`run_optimizer_demo.py`, `optimization_report.json`).
 - [x] Unit test coverage (`tests/test_optimizer.py`).
 
-### Module 4: Experiment Tracking
-- [ ] Experiment & run schema (`ExperimentRun`, `RunMetadata`, `RunComparison`).
-- [ ] Local JSON / SQLite run registry for tracking parameter sweeps, versions, and metrics.
-- [ ] Run comparison engine and diff visualizer (Baseline vs. Candidate).
+### Module 4: Experiment Tracking (100% Complete)
+- [x] Experiment & run schema (`ExperimentRun`, `RunMetadata`, `RunMetrics`, `RunComparison`).
+- [x] Local JSON run registry for tracking parameter sweeps, versions, and metrics (`ExperimentTracker`).
+- [x] Multi-criteria run ranking & leaderboard generator (`format_leaderboard`).
+- [x] Side-by-side run comparison engine with regression tolerance thresholding (`compare_runs`).
+- [x] Interactive demonstration runner (`run_tracker_demo.py`).
+- [x] Unit test coverage (`tests/test_experiment_tracker.py`).
 
 ### Module 5: Quality Regression & CI/CD
 - [ ] Quality gate thresholds (PASS / FAIL on Faithfulness, Correctness, Precision).
 - [ ] Automated CLI command for CI/CD pipelines (exits with non-zero on regression).
-- [ ] GitHub Actions workflow integration.
+- [ ] GitHub Actions workflow integration (`.github/workflows/ci.yml`).
 
 ### Module 6: Interactive RAG Debugger
 - [ ] Detailed step-by-step trace inspection per query (retrieved chunks, scores, prompt assembled, token usage).
 
 ### Module 7: Full-Stack Platform Integration
 - [ ] Next.js frontend + Java/Spring Boot & FastAPI backend + PostgreSQL (`pgvector`).
+
 

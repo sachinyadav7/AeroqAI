@@ -5,6 +5,7 @@ from AeroqAI.models.retrieval import SearchResult, RetrievalResult, RerankedSear
 from AeroqAI.models.generation import SourceCitation, GenerationResult
 from AeroqAI.models.evaluation import EvaluationSample, MetricScore, SampleEvaluationResult, BenchmarkReport
 from AeroqAI.models.optimization import PipelineConfig, OptimizationTrial, OptimizationResult
+from AeroqAI.models.experiment import RunMetadata, RunMetrics, ExperimentRun, RunComparison
 
 __all__ = [
     "RawDocument",
@@ -25,6 +26,10 @@ __all__ = [
     "BenchmarkReport",
     "PipelineConfig",
     "OptimizationTrial",
-    "OptimizationResult"
+    "OptimizationResult",
+    "RunMetadata",
+    "RunMetrics",
+    "ExperimentRun",
+    "RunComparison"
 ]
 

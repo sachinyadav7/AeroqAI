@@ -1,0 +1,184 @@
+{
+  "run_id": "run_trial_003_cfg_c800_o60_k3_rrOFF",
+  "experiment_name": "hr_policy_rag_tuning",
+  "status": "COMPLETED",
+  "created_at": "2026-10-20T17:38:33.882568+00:00",
+  "completed_at": "2026-10-20T17:38:33.882556+00:00",
+  "config": {
+    "config_id": "cfg_c800_o60_k3_rrOFF",
+    "chunk_size": 800,
+    "chunk_overlap": 60,
+    "chunk_strategy": "recursive",
+    "top_k": 3,
+    "use_reranker": false,
+    "reranker_top_k": 3,
+    "embedding_provider": "sentence-transformers",
+    "generator_provider": "mock",
+    "prompt_template_name": "standard"
+  },
+  "metrics": {
+    "overall_quality_score": 0.707,
+    "faithfulness": 0.916,
+    "answer_correctness": 0.4847,
+    "context_precision": 0.7333,
+    "pass_rate": 80.0,
+    "avg_latency_ms": 11.82,
+    "total_tokens_consumed": 0,
+    "estimated_cost_usd": 0.12
+  },
+  "metadata": {
+    "git_commit": null,
+    "environment": "local",
+    "user": null,
+    "tags": {
+      "search_space": "Quick Sweep (Chunk Size x Reranker)",
+      "is_pareto_optimal": "True"
+    }
+  },
+  "benchmark_report": {
+    "dataset_name": "Trial trial_003 (cfg_c800_o60_k3_rrOFF)",
+    "evaluator_model": "deterministic (deterministic-heuristic-v1)",
+    "total_samples": 5,
+    "passed_samples": 4,
+    "failed_samples": 1,
+    "pass_rate": 80.0,
+    "mean_faithfulness": 0.916,
+    "mean_correctness": 0.4847,
+    "mean_context_precision": 0.7333,
+    "mean_overall_score": 0.707,
+    "total_eval_latency_ms": 62.06,
+    "sample_results": [
+      {
+        "sample_id": "eval_leave_01",
+        "query": "How many days of paid annual leave do full-time employees receive, and what is the carry-over allowance?",
+        "generated_answer": "Based on the provided documents (Referencing hr_policy.pdf, Page 3):\n- 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year.\n- 3.2 Sick & Personal Leave:\nEmployees receive 10 paid sick/personal days annually.\n- - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year.\n- Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health.",
+        "ground_truth_answer": "Standard full-time employees receive 20 days of paid annual leave per calendar year (25 days for senior staff with 5+ years tenure). Employees may carry over a maximum of 5 unused leave days into the following year.",
+        "retrieved_contexts": [
+          "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year. - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year. 3.2 Sick & Personal Leave:\nEmployees receive 10 paid sick/personal days annually. Unused sick leave does not roll over to subsequent\ncalendar years. 3.3 Parental Leave: Primary caregivers are eligible for 16 weeks of fully paid parental leave\nfollowing the birth or adoption of a child. Secondary caregivers receive 6 weeks of paid leave.",
+          "Global Tech Inc. - Corporate HR Policy\nHandbook\nSection 1: General Provisions & Employment Categories\nWelcome to Global Tech Inc. This Employee Handbook outlines the core policies, expectations, and benefits\ngoverning all full-time, part-time, and contract employees worldwide. 1.1 Equal Employment Opportunity: Global\nTech Inc. provides equal employment opportunities to all employees and applicants without regard to race,\ncolor, religion, sex, national origin, age, disability, or genetics. 1.2 Employment Classifications: - Full-Time\nEmployees: Regularly scheduled to work 40 hours per week. Eligible for full company benefit packages. -\nPart-Time Employees: Scheduled to work fewer than 30 hours per week. Benefits are prorated based on hours",
+          "Separation, Resignation & Severance\nGuidelines\nSection 10: Offboarding Procedures & Termination Notice\nFair and transparent procedures govern employment conclusion at Global Tech Inc. 10.1 Notice Period:\nEmployees initiating resignation must provide at least 2 weeks (14 days) written notice to their direct supervisor\nand HR representative. 10.2 Return of Company Assets: All laptops, security keycards, monitors, and\nproprietary materials must be returned within 5 business days of the final active work date. 10.3 Severance\nEligibility: Eligible staff separated due to redundancy or corporate restructuring receive 2 weeks severance pay\nper completed year of service, up to a maximum of 26 weeks."
+        ],
+        "faithfulness": {
+          "score": 0.8936,
+          "reasoning": "42/47 answer words directly corroborated by context (89.4%)."
+        },
+        "answer_correctness": {
+          "score": 0.5558,
+          "reasoning": "Recall: 70.8%, Jaccard: 32.7%, Matched 17/24 concepts."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "reasoning": "3/3 retrieved chunks contain keywords relevant to the query."
+        },
+        "overall_score": 0.7798,
+        "passed": true,
+        "eval_latency_ms": 0.62
+      },
+      {
+        "sample_id": "eval_hours_02",
+        "query": "What are the core operating hours and expectations for synchronous availability?",
+        "generated_answer": "Based on the provided documents (Referencing hr_policy.pdf, Page 2):\n- All full-time\nemployees are expected to be available for synchronous communication during core hours.\n- 2.1 Core Hours: Core operational hours are 10:00 AM to 4:00 PM EST.\n- This Employee Handbook outlines the core policies, expectations, and benefits\ngoverning all full-time, part-time, and contract employees worldwide.\n- Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc.",
+        "ground_truth_answer": "Core operational hours are 10:00 AM to 4:00 PM EST. All full-time employees are expected to be available for synchronous communication during these core hours.",
+        "retrieved_contexts": [
+          "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designed to balance operational efficiency and\nemployee wellness. 2.1 Core Hours: Core operational hours are 10:00 AM to 4:00 PM EST. All full-time\nemployees are expected to be available for synchronous communication during core hours. 2.2 Hybrid Remote\nWork Guidelines: - Employees may work remotely up to 3 days per week with prior manager approval. - Team\nmembers must work from an approved office location or verified home workspace with secure internet. -\nHigh-speed internet (minimum 50 Mbps download speed) is mandatory for remote workers.",
+          "Global Tech Inc. - Corporate HR Policy\nHandbook\nSection 1: General Provisions & Employment Categories\nWelcome to Global Tech Inc. This Employee Handbook outlines the core policies, expectations, and benefits\ngoverning all full-time, part-time, and contract employees worldwide. 1.1 Equal Employment Opportunity: Global\nTech Inc. provides equal employment opportunities to all employees and applicants without regard to race,\ncolor, religion, sex, national origin, age, disability, or genetics. 1.2 Employment Classifications: - Full-Time\nEmployees: Regularly scheduled to work 40 hours per week. Eligible for full company benefit packages. -\nPart-Time Employees: Scheduled to work fewer than 30 hours per week. Benefits are prorated based on hours",
+          "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year. - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year. 3.2 Sick & Personal Leave:\nEmployees receive 10 paid sick/personal days annually. Unused sick leave does not roll over to subsequent\ncalendar years. 3.3 Parental Leave: Primary caregivers are eligible for 16 weeks of fully paid parental leave\nfollowing the birth or adoption of a child. Secondary caregivers receive 6 weeks of paid leave."
+        ],
+        "faithfulness": {
+          "score": 0.8958,
+          "reasoning": "43/48 answer words directly corroborated by context (89.6%)."
+        },
+        "answer_correctness": {
+          "score": 0.7083,
+          "reasoning": "Recall: 94.4%, Jaccard: 35.4%, Matched 17/18 concepts."
+        },
+        "context_precision": {
+          "score": 0.6667,
+          "reasoning": "2/3 retrieved chunks contain keywords relevant to the query."
+        },
+        "overall_score": 0.775,
+        "passed": true,
+        "eval_latency_ms": 0.57
+      },
+      {
+        "sample_id": "eval_remote_03",
+        "query": "What is the hybrid remote work model and office attendance requirement?",
+        "generated_answer": "Based on the provided documents (Referencing hr_policy.pdf, Page 2):\n- Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc.\n- operates on a flexible hybrid work model designed to balance operational efficiency and\nemployee wellness.\n- 2.2 Hybrid Remote\nWork Guidelines: - Employees may work remotely up to 3 days per week with prior manager approval.\n- - Team\nmembers must work from an approved office location or verified home workspace with secure internet.",
+        "ground_truth_answer": "Global Tech operates on a flexible hybrid work model where employees work 3 days in the office and 2 days remotely per week, coordinated within their respective departments.",
+        "retrieved_contexts": [
+          "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designed to balance operational efficiency and\nemployee wellness. 2.1 Core Hours: Core operational hours are 10:00 AM to 4:00 PM EST. All full-time\nemployees are expected to be available for synchronous communication during core hours. 2.2 Hybrid Remote\nWork Guidelines: - Employees may work remotely up to 3 days per week with prior manager approval. - Team\nmembers must work from an approved office location or verified home workspace with secure internet. -\nHigh-speed internet (minimum 50 Mbps download speed) is mandatory for remote workers.",
+          "Equipment, Hardware & Remote Stipends\nSection 5: Technology Allowances & Workstation Setup\nTo ensure high performance, Global Tech Inc. equips every employee with modern hardware and workstation\nstipends. 5.1 Hardware Allocation: Upon joining, employees receive a high-performance laptop (MacBook Pro\n16-inch or Dell XPS 15), 4K external monitor, and noise-canceling headset. 5.2 Work-from-Home Setup\nStipend: A one-time $1,000 net stipend is provided to newly hired remote employees for ergonomic desk, chair,\nor lighting purchases. 5.3 Monthly Internet & Connectivity Allowance: A monthly stipend of $75 is credited\ndirectly to payroll to offset home high-speed broadband expenses.",
+          "Global Tech Inc. - Corporate HR Policy\nHandbook\nSection 1: General Provisions & Employment Categories\nWelcome to Global Tech Inc. This Employee Handbook outlines the core policies, expectations, and benefits\ngoverning all full-time, part-time, and contract employees worldwide. 1.1 Equal Employment Opportunity: Global\nTech Inc. provides equal employment opportunities to all employees and applicants without regard to race,\ncolor, religion, sex, national origin, age, disability, or genetics. 1.2 Employment Classifications: - Full-Time\nEmployees: Regularly scheduled to work 40 hours per week. Eligible for full company benefit packages. -\nPart-Time Employees: Scheduled to work fewer than 30 hours per week. Benefits are prorated based on hours"
+        ],
+        "faithfulness": {
+          "score": 0.9038,
+          "reasoning": "47/52 answer words directly corroborated by context (90.4%)."
+        },
+        "answer_correctness": {
+          "score": 0.5357,
+          "reasoning": "Recall: 71.4%, Jaccard: 26.8%, Matched 15/21 concepts."
+        },
+        "context_precision": {
+          "score": 1.0,
+          "reasoning": "3/3 retrieved chunks contain keywords relevant to the query."
+        },
+        "overall_score": 0.7758,
+        "passed": true,
+        "eval_latency_ms": 0.87
+      },
+      {
+        "sample_id": "eval_health_04",
+        "query": "What are the subsidy rates for the Preferred Provider Organization (PPO) health insurance plan?",
+        "generated_answer": "Based on the provided documents (Referencing hr_policy.pdf, Page 4):\n- 4.1 Health Insurance Plans: - Preferred Provider Organization (PPO):\n90% company subsidized for employee, 70% for dependents.\n- Health Insurance & Medical Benefits\nSection 4: Comprehensive Healthcare Coverage\nGlobal Tech Inc.\n- - High Deductible Health Plan (HDHP) with HSA:\n100% company subsidized for employee with $1,500 annual HSA contribution.\n- offers premium medical, dental, and vision insurance coverage to all full-time team members\nstarting on their first day of employment.",
+        "ground_truth_answer": "The company subsidizes 90% of the premium for employees and 70% for their eligible dependents under the Preferred Provider Organization (PPO) plan.",
+        "retrieved_contexts": [
+          "Health Insurance & Medical Benefits\nSection 4: Comprehensive Healthcare Coverage\nGlobal Tech Inc. offers premium medical, dental, and vision insurance coverage to all full-time team members\nstarting on their first day of employment. 4.1 Health Insurance Plans: - Preferred Provider Organization (PPO):\n90% company subsidized for employee, 70% for dependents. - High Deductible Health Plan (HDHP) with HSA:\n100% company subsidized for employee with $1,500 annual HSA contribution. 4.2 Dental & Vision: Full\npreventive dental cleanings twice per year and annual eye exams covered at 100% under standard company\nplans.",
+          "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year. - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year. 3.2 Sick & Personal Leave:\nEmployees receive 10 paid sick/personal days annually. Unused sick leave does not roll over to subsequent\ncalendar years. 3.3 Parental Leave: Primary caregivers are eligible for 16 weeks of fully paid parental leave\nfollowing the birth or adoption of a child. Secondary caregivers receive 6 weeks of paid leave.",
+          "Equipment, Hardware & Remote Stipends\nSection 5: Technology Allowances & Workstation Setup\nTo ensure high performance, Global Tech Inc. equips every employee with modern hardware and workstation\nstipends. 5.1 Hardware Allocation: Upon joining, employees receive a high-performance laptop (MacBook Pro\n16-inch or Dell XPS 15), 4K external monitor, and noise-canceling headset. 5.2 Work-from-Home Setup\nStipend: A one-time $1,000 net stipend is provided to newly hired remote employees for ergonomic desk, chair,\nor lighting purchases. 5.3 Monthly Internet & Connectivity Allowance: A monthly stipend of $75 is credited\ndirectly to payroll to offset home high-speed broadband expenses."
+        ],
+        "faithfulness": {
+          "score": 0.8868,
+          "reasoning": "47/53 answer words directly corroborated by context (88.7%)."
+        },
+        "answer_correctness": {
+          "score": 0.5673,
+          "reasoning": "Recall: 80.0%, Jaccard: 21.8%, Matched 12/15 concepts."
+        },
+        "context_precision": {
+          "score": 0.6667,
+          "reasoning": "2/3 retrieved chunks contain keywords relevant to the query."
+        },
+        "overall_score": 0.715,
+        "passed": true,
+        "eval_latency_ms": 0.56
+      },
+      {
+        "sample_id": "eval_retirement_05",
+        "query": "What is the 401(k) retirement matching policy?",
+        "generated_answer": "I cannot find the answer in the provided documents.",
+        "ground_truth_answer": "The company provides a 100% dollar-for-dollar match on employee 401(k) contributions up to 4% of eligible base salary, with immediate vesting.",
+        "retrieved_contexts": [
+          "Health Insurance & Medical Benefits\nSection 4: Comprehensive Healthcare Coverage\nGlobal Tech Inc. offers premium medical, dental, and vision insurance coverage to all full-time team members\nstarting on their first day of employment. 4.1 Health Insurance Plans: - Preferred Provider Organization (PPO):\n90% company subsidized for employee, 70% for dependents. - High Deductible Health Plan (HDHP) with HSA:\n100% company subsidized for employee with $1,500 annual HSA contribution. 4.2 Dental & Vision: Full\npreventive dental cleanings twice per year and annual eye exams covered at 100% under standard company\nplans.",
+          "Performance Reviews & Career Progression\nSection 7: Performance Management & Salary Reviews\nFair evaluation and continuous feedback foster individual career growth and organizational success. 7.1\nBi-Annual Performance Cadence: Formal performance evaluations occur twice per year: Mid-Year Review in\nJuly and End-of-Year Review in December. 7.2 Annual Compensation Adjustment: Merit-based salary\nincreases and annual bonus distributions are tied directly to End-of-Year performance ratings. 7.3 Promotion\nCriteria: Promotions require at least 12 months in current role, consistent 'Exceeds Expectations' rating, and\nleadership approval.",
+          "Global Tech Inc. - Corporate HR Policy\nHandbook\nSection 1: General Provisions & Employment Categories\nWelcome to Global Tech Inc. This Employee Handbook outlines the core policies, expectations, and benefits\ngoverning all full-time, part-time, and contract employees worldwide. 1.1 Equal Employment Opportunity: Global\nTech Inc. provides equal employment opportunities to all employees and applicants without regard to race,\ncolor, religion, sex, national origin, age, disability, or genetics. 1.2 Employment Classifications: - Full-Time\nEmployees: Regularly scheduled to work 40 hours per week. Eligible for full company benefit packages. -\nPart-Time Employees: Scheduled to work fewer than 30 hours per week. Benefits are prorated based on hours"
+        ],
+        "faithfulness": {
+          "score": 1.0,
+          "reasoning": "Properly stated inability to find answer in context."
+        },
+        "answer_correctness": {
+          "score": 0.0565,
+          "reasoning": "Recall: 6.2%, Jaccard: 4.8%, Matched 1/16 concepts."
+        },
+        "context_precision": {
+          "score": 0.3333,
+          "reasoning": "1/3 retrieved chunks contain keywords relevant to the query."
+        },
+        "overall_score": 0.4893,
+        "passed": false,
+        "eval_latency_ms": 0.25
+      }
+    ]
+  },
+  "artifact_paths": []
+}
