@@ -497,6 +497,38 @@ Gives AI engineers and auditors white-box visibility into every stage of RAG que
 
 ---
 
+### Module 7: Full-Stack Platform Integration (Part 1 — FastAPI REST Platform Service)
+
+#### 🔹 Architecture & Purpose:
+Exposes all 6 core AI engine modules through high-performance, asynchronous REST API endpoints with auto-generated OpenAPI / Swagger documentation (`/docs`) and cross-origin resource sharing (CORS) support for web frontend integration.
+
+#### 🔹 Endpoints Implemented & Tested:
+- **System Service** ([`AeroqAI/api/routes/system.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/system.py)):
+  - `GET /api/system/health`: System health status, model identifiers, loaded corpus pages, and vector chunk index count.
+- **RAG Pipeline Service** ([`AeroqAI/api/routes/rag.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/rag.py)):
+  - `POST /api/rag/query`: End-to-end question answering across indexed documents with citations and millisecond latency.
+- **Interactive Debugger Service** ([`AeroqAI/api/routes/debugger.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/debugger.py)):
+  - `POST /api/debugger/trace`: Microsecond latency waterfall profiling, candidate passage rank shifts ($\Delta \text{Rank}$), context assembly, and token accounting.
+- **Evaluation Engine Service** ([`AeroqAI/api/routes/evaluation.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/evaluation.py)):
+  - `GET /api/evaluation/datasets`: List available golden benchmark datasets.
+  - `GET /api/evaluation/latest`: Retrieve latest benchmark scorecard (`benchmark_results.json`).
+  - `POST /api/evaluation/run`: Trigger automated benchmark evaluation.
+- **RAG Optimizer Service** ([`AeroqAI/api/routes/optimizer.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/optimizer.py)):
+  - `GET /api/optimizer/latest`: Retrieve latest Pareto frontier report (`optimization_report.json`).
+  - `POST /api/optimizer/grid`: Launch hyperparameter grid search across chunk sizes, overlap, and reranking.
+- **Experiment Tracking Service** ([`AeroqAI/api/routes/experiments.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/experiments.py)):
+  - `GET /api/experiments/runs`: List all recorded experiment runs with sorting by quality, latency, or date.
+  - `GET /api/experiments/runs/{run_id}`: Fetch single run details.
+  - `GET /api/experiments/leaderboard`: Render experiment leaderboard ranking.
+  - `POST /api/experiments/compare`: Side-by-side differential comparison (Candidate vs Baseline) with regression detection.
+- **Quality Gates Service** ([`AeroqAI/api/routes/quality_gate.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/api/routes/quality_gate.py)):
+  - `GET /api/quality-gate/latest`: Retrieve latest quality gate verdict (`quality_gate_report.json`).
+  - `POST /api/quality-gate/evaluate`: Evaluate benchmark report against release policies.
+- **Server Runner** ([`run_server.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_server.py)):
+  - Starts Uvicorn server on `http://127.0.0.1:8000` with Swagger docs at `http://127.0.0.1:8000/docs`.
+
+---
+
 ## 🚀 Next Stages & Roadmap
 
 ### Module 1: RAG Pipeline (100% Complete)
@@ -547,7 +579,12 @@ Gives AI engineers and auditors white-box visibility into every stage of RAG que
 - [x] Unit test coverage (`tests/test_debugger.py`).
 
 ### Module 7: Full-Stack Platform Integration
-- [ ] Next.js frontend + Java/Spring Boot & FastAPI backend + PostgreSQL (`pgvector`).
+- [x] FastAPI REST Platform API application (`AeroqAI/api/app.py`).
+- [x] REST endpoints for RAG, Evaluation, Optimizer, Experiments, Quality Gates, and Debugger.
+- [x] API unit test suite (`tests/test_api.py`).
+- [x] Server runner script (`run_server.py`).
+- [ ] Next.js frontend web application with interactive dashboard, debugger playground, and evaluation charts.
+
 
 
 

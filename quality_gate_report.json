@@ -1,5 +1,5 @@
 {
-  "gate_name": "AeroqAI Production Release Gate",
+  "gate_name": "AeroqAI Automated API Release Gate",
   "passed": true,
   "total_rules_checked": 5,
   "passed_rules_count": 5,
