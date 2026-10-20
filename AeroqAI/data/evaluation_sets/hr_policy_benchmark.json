@@ -1,0 +1,130 @@
+[
+  {
+    "sample_id": "eval_leave_01",
+    "query": "How many days of paid annual leave do full-time employees receive, and what is the carry-over allowance?",
+    "ground_truth_answer": "Standard full-time employees receive 20 days of paid annual leave per calendar year (25 days for senior staff with 5+ years tenure). Employees may carry over a maximum of 5 unused leave days into the following year.",
+    "reference_contexts": [
+      "Standard full-time employees receive 20 days of paid annual leave per calendar year. Senior staff (5+ years tenure) receive 25 days of paid annual leave per calendar year. A maximum of 5 unused leave days can be carried over into the following year."
+    ],
+    "metadata": {
+      "page_number": 3,
+      "category": "Time Off & Leave",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "sample_id": "eval_hours_02",
+    "query": "What are the core operating hours and expectations for synchronous availability?",
+    "ground_truth_answer": "Core operational hours are 10:00 AM to 4:00 PM EST. All full-time employees are expected to be available for synchronous communication during these core hours.",
+    "reference_contexts": [
+      "Core operational hours are 10:00 AM to 4:00 PM EST. All full-time employees are expected to be available for synchronous communication during core hours."
+    ],
+    "metadata": {
+      "page_number": 2,
+      "category": "Work Schedules",
+      "difficulty": "easy"
+    }
+  },
+  {
+    "sample_id": "eval_remote_03",
+    "query": "What is the hybrid remote work model and office attendance requirement?",
+    "ground_truth_answer": "Global Tech operates on a flexible hybrid work model where employees work 3 days in the office and 2 days remotely per week, coordinated within their respective departments.",
+    "reference_contexts": [
+      "Global Tech Inc. operates on a flexible hybrid work model designed to balance operational efficiency and employee wellness. Team members work three designated days on-site and two days remotely."
+    ],
+    "metadata": {
+      "page_number": 2,
+      "category": "Work Schedules",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "sample_id": "eval_health_04",
+    "query": "What are the subsidy rates for the Preferred Provider Organization (PPO) health insurance plan?",
+    "ground_truth_answer": "The company subsidizes 90% of the premium for employees and 70% for their eligible dependents under the Preferred Provider Organization (PPO) plan.",
+    "reference_contexts": [
+      "Preferred Provider Organization (PPO): 90% company subsidized for employee, 70% for dependents."
+    ],
+    "metadata": {
+      "page_number": 4,
+      "category": "Healthcare & Benefits",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "sample_id": "eval_retirement_05",
+    "query": "What is the 401(k) retirement matching policy?",
+    "ground_truth_answer": "The company provides a 100% dollar-for-dollar match on employee 401(k) contributions up to 4% of eligible base salary, with immediate vesting.",
+    "reference_contexts": [
+      "The company matches 100% of employee contributions up to 4% of annual base salary. Matching contributions vest immediately upon enrollment."
+    ],
+    "metadata": {
+      "page_number": 5,
+      "category": "Financial Benefits",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "sample_id": "eval_offboarding_06",
+    "query": "What is the timeframe and procedure for returning company equipment when leaving the company?",
+    "ground_truth_answer": "All laptops, security keycards, monitors, and proprietary materials must be returned within 5 business days of the final active work date.",
+    "reference_contexts": [
+      "All laptops, security keycards, monitors, and proprietary materials must be returned within 5 business days of the final active work date."
+    ],
+    "metadata": {
+      "page_number": 10,
+      "category": "Offboarding & Separation",
+      "difficulty": "easy"
+    }
+  },
+  {
+    "sample_id": "eval_parental_07",
+    "query": "What is the parental leave entitlement for primary caregivers?",
+    "ground_truth_answer": "Primary caregivers are eligible for 16 weeks of fully paid parental leave following the birth or adoption of a child.",
+    "reference_contexts": [
+      "Primary caregivers are eligible for 16 weeks of fully paid parental leave following the birth or adoption of a child."
+    ],
+    "metadata": {
+      "page_number": 3,
+      "category": "Time Off & Leave",
+      "difficulty": "easy"
+    }
+  },
+  {
+    "sample_id": "eval_learning_08",
+    "query": "What is the annual stipend for professional development and learning?",
+    "ground_truth_answer": "Employees receive an annual stipend of $2,000 for conferences, professional certifications, books, and educational courses approved by their manager.",
+    "reference_contexts": [
+      "Each full-time team member receives an annual educational stipend of $2,000 to pursue relevant certifications, university courses, and technical conferences."
+    ],
+    "metadata": {
+      "page_number": 7,
+      "category": "Professional Development",
+      "difficulty": "medium"
+    }
+  },
+  {
+    "sample_id": "eval_it_09",
+    "query": "How often must corporate passwords be changed and what are the complexity rules?",
+    "ground_truth_answer": "Passwords must be changed every 90 days and must contain at least 14 characters, including uppercase, lowercase, numbers, and symbols.",
+    "reference_contexts": [
+      "Corporate network passwords must be at least 14 characters in length and expire every 90 days. Multi-factor authentication (MFA) is strictly mandatory."
+    ],
+    "metadata": {
+      "page_number": 8,
+      "category": "Information Security",
+      "difficulty": "hard"
+    }
+  },
+  {
+    "sample_id": "eval_hallucination_10",
+    "query": "What is the policy for personal spaceships and interstellar travel reimbursement?",
+    "ground_truth_answer": "I cannot find the answer in the provided documents.",
+    "reference_contexts": [],
+    "metadata": {
+      "page_number": null,
+      "category": "Hallucination Check",
+      "difficulty": "adversarial"
+    }
+  }
+]
