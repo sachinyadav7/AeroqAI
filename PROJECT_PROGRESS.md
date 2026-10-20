@@ -33,12 +33,14 @@ Major-Project/
 ├── run_cleaner_demo.py                 # Module 1 Stage 2 interactive demo script
 ├── run_chunker_demo.py                 # Module 1 Stage 3 interactive demo script
 ├── run_embedder_demo.py                # Module 1 Stage 4 interactive demo script
+├── run_retriever_demo.py               # Module 1 Stage 5 interactive demo script
 ├── AeroqAI/                            # Core AeroqAI Python package
 │   ├── __init__.py                     # Package entry point
 │   ├── models/                         # Structured Pydantic data models
 │   │   ├── __init__.py
 │   │   ├── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
-│   │   └── chunk.py                    # ChunkMetadata, TextChunk, EmbeddedChunk
+│   │   ├── chunk.py                    # ChunkMetadata, TextChunk, EmbeddedChunk
+│   │   └── retrieval.py                # SearchResult, RetrievalResult
 │   ├── modules/                        # Core system modules
 │   │   ├── __init__.py
 │   │   └── module_1_rag/               # Module 1: Core RAG Pipeline
@@ -46,7 +48,8 @@ Major-Project/
 │   │       ├── document_loader.py      # Stage 1: PDF ingestion & metadata extraction
 │   │       ├── text_cleaner.py         # Stage 2: Normalization & cleaning engine
 │   │       ├── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
-│   │       └── embedding_generator.py  # Stage 4: Pluggable vector embedding engine
+│   │       ├── embedding_generator.py  # Stage 4: Pluggable vector embedding engine
+│   │       └── vector_store.py         # Stage 5: In-memory & pgvector similarity search
 │   └── data/
 │       └── sample_docs/
 │           └── hr_policy.pdf           # 10-page enterprise test document
@@ -56,7 +59,8 @@ Major-Project/
     ├── test_document_loader.py         # Stage 1 unit tests
     ├── test_text_cleaner.py            # Stage 2 unit tests
     ├── test_text_chunker.py            # Stage 3 unit tests
-    └── test_embedding_generator.py     # Stage 4 unit tests
+    ├── test_embedding_generator.py     # Stage 4 unit tests
+    └── test_vector_store.py            # Stage 5 unit tests
 ```
 
 ---
@@ -180,6 +184,39 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ---
 
+#### 🔹 Stage 5: Vector Store & Retrieval Engine
+- **Files**:
+  - Models: [`AeroqAI/models/retrieval.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/retrieval.py) (`SearchResult`, `RetrievalResult`)
+  - Engine: [`AeroqAI/modules/module_1_rag/vector_store.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_1_rag/vector_store.py)
+- **Tech Stack**: Python, NumPy, Pydantic v2
+- **Understanding & Purpose**:
+  Once chunks are vectorized, a vector store indexes them so the system can perform real-time similarity search when a user poses a question.
+  `vector_store.py`:
+  - **In-Memory Vectorized Engine (`InMemoryVectorStore`)**:
+    - Stores chunk metadata and vector matrices in memory using NumPy.
+    - Executes vectorized dot products for ultra-fast Top-K ranking (~13-35ms query latency).
+    - Zero external database requirements, making it ideal for rapid development, test suites, and RAG optimizer grid searches.
+  - **PostgreSQL / pgvector Architecture (`PgVectorStore`)**:
+    - Production connector interface designed for PostgreSQL with `pgvector` indexing (`<=>` cosine operator).
+  - **Top-K & Score Thresholding**:
+    - Configurable `top_k` (e.g. 3, 5, 10) allows Module 3 (RAG Optimizer) to benchmark retrieval depth.
+    - `score_threshold` filters out low-confidence matches before they reach the LLM.
+  - **Metadata Filtering**:
+    - Scopes similarity search to specific pages, document IDs, or custom department tags (e.g. `metadata_filter={'page_number': 3}`).
+  - **Structured Retrieval Result**:
+    - Outputs `RetrievalResult` containing ranked `SearchResult` objects, execution latency in milliseconds, query text, and a `get_context_text()` helper to format context for LLM generation (Stage 7).
+- **Verification & Demo**:
+  - Script: [`run_retriever_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_retriever_demo.py)
+  - Run command: `python run_retriever_demo.py`
+  - Multi-query benchmark:
+    - *"What are the rules and allowances for annual paid leave?"* ➡️ Top 2 matches on Page 3 (58.51% & 47.32%).
+    - *"What are the core working hours and remote hybrid schedule?"* ➡️ Top match on Page 2 (82.56%).
+    - *"What is the procedure for returning company equipment when leaving?"* ➡️ Top match on Page 10 (46.69%).
+    - Scoped page filtering: strictly returned Page 3 chunks when filtered by `{'page_number': 3}`.
+  - Unit tests: [`tests/test_vector_store.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/tests/test_vector_store.py) (8 tests covering chunk addition, dimension validation, Top-K ranking, score thresholding, metadata filtering, latency tracking, chunk deletion, and factory resolution).
+
+---
+
 #### 🔹 Synthetic Test Data Generation
 - **File**: [`scripts/generate_sample_pdf.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/scripts/generate_sample_pdf.py)
 - **Tech Stack**: `reportlab`
@@ -195,8 +232,7 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 - [x] **Stage 2: Text Cleaner & Normalizer** (`text_cleaner.py`) — *Completed & Tested*
 - [x] **Stage 3: Text Chunker** (`text_chunker.py`) — *Completed & Tested*
 - [x] **Stage 4: Embedding Generator** (`embedding_generator.py`) — *Completed & Tested*
-- [ ] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`):
-  - In-memory & `pgvector` cosine similarity search. Top-K extraction.
+- [x] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`) — *Completed & Tested*
 - [ ] **Stage 6: Reranker** (`reranker.py`):
   - Cross-Encoder score refinement.
 - [ ] **Stage 7: Context Assembly & LLM Generator** (`generator.py`):
