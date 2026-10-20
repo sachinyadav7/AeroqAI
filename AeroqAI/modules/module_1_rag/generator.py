@@ -153,7 +153,14 @@ class DeterministicMockGenerator(BaseLLMGenerator):
             "at", "by", "an", "this", "that", "which", "or", "from", "company",
             "policy", "about", "tell", "me", "give", "explain", "rules"
         }
+        def _stem(word: str) -> str:
+            for suffix in ("ing", "tion", "tions", "ed", "es", "s", "ly"):
+                if word.endswith(suffix) and len(word) > len(suffix) + 2:
+                    return word[:-len(suffix)]
+            return word
+
         query_words = set(re.findall(r"\b[a-zA-Z0-9_-]+\b", query.lower())) - stopwords
+        query_stems = {_stem(w) for w in query_words}
 
         # Check if neural reranker decisively rejected candidates (e.g. cross-encoder logit < -2.0)
         has_negative_cross_scores = bool(citations and all(
@@ -171,7 +178,8 @@ class DeterministicMockGenerator(BaseLLMGenerator):
 
             for sentence in sentences:
                 s_words = set(re.findall(r"\b[a-zA-Z0-9_-]+\b", sentence.lower()))
-                matches = query_words.intersection(s_words)
+                s_stems = {_stem(w) for w in s_words}
+                matches = query_stems.intersection(s_stems)
                 if matches:
                     scored_sentences.append((len(matches), sentence))
 
