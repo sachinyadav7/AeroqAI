@@ -5,6 +5,7 @@ Stage 2: Text Cleaning & Normalization
 Stage 3: Text Chunking
 Stage 4: Embedding Generation
 Stage 5: Vector Store & Retrieval
+Stage 6: Cross-Encoder Reranker
 """
 
 from AeroqAI.modules.module_1_rag.document_loader import PDFDocumentLoader, DocumentLoaderError
@@ -25,6 +26,13 @@ from AeroqAI.modules.module_1_rag.vector_store import (
     VectorStoreError,
     get_vector_store
 )
+from AeroqAI.modules.module_1_rag.reranker import (
+    BaseReranker,
+    DeterministicMockReranker,
+    CrossEncoderReranker,
+    RerankerError,
+    get_reranker
+)
 
 __all__ = [
     "PDFDocumentLoader",
@@ -42,6 +50,11 @@ __all__ = [
     "InMemoryVectorStore",
     "PgVectorStore",
     "VectorStoreError",
-    "get_vector_store"
+    "get_vector_store",
+    "BaseReranker",
+    "DeterministicMockReranker",
+    "CrossEncoderReranker",
+    "RerankerError",
+    "get_reranker"
 ]
 

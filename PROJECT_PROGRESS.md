@@ -34,13 +34,14 @@ Major-Project/
 ├── run_chunker_demo.py                 # Module 1 Stage 3 interactive demo script
 ├── run_embedder_demo.py                # Module 1 Stage 4 interactive demo script
 ├── run_retriever_demo.py               # Module 1 Stage 5 interactive demo script
+├── run_reranker_demo.py                # Module 1 Stage 6 interactive demo script
 ├── AeroqAI/                            # Core AeroqAI Python package
 │   ├── __init__.py                     # Package entry point
 │   ├── models/                         # Structured Pydantic data models
 │   │   ├── __init__.py
 │   │   ├── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
 │   │   ├── chunk.py                    # ChunkMetadata, TextChunk, EmbeddedChunk
-│   │   └── retrieval.py                # SearchResult, RetrievalResult
+│   │   └── retrieval.py                # SearchResult, RetrievalResult, RerankResult
 │   ├── modules/                        # Core system modules
 │   │   ├── __init__.py
 │   │   └── module_1_rag/               # Module 1: Core RAG Pipeline
@@ -49,7 +50,8 @@ Major-Project/
 │   │       ├── text_cleaner.py         # Stage 2: Normalization & cleaning engine
 │   │       ├── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
 │   │       ├── embedding_generator.py  # Stage 4: Pluggable vector embedding engine
-│   │       └── vector_store.py         # Stage 5: In-memory & pgvector similarity search
+│   │       ├── vector_store.py         # Stage 5: In-memory & pgvector similarity search
+│   │       └── reranker.py             # Stage 6: Cross-Encoder neural reranker
 │   └── data/
 │       └── sample_docs/
 │           └── hr_policy.pdf           # 10-page enterprise test document
@@ -60,7 +62,8 @@ Major-Project/
     ├── test_text_cleaner.py            # Stage 2 unit tests
     ├── test_text_chunker.py            # Stage 3 unit tests
     ├── test_embedding_generator.py     # Stage 4 unit tests
-    └── test_vector_store.py            # Stage 5 unit tests
+    ├── test_vector_store.py            # Stage 5 unit tests
+    └── test_reranker.py                # Stage 6 unit tests
 ```
 
 ---
@@ -217,6 +220,34 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ---
 
+#### 🔹 Stage 6: Cross-Encoder Reranker
+- **Files**:
+  - Models: [`AeroqAI/models/retrieval.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/retrieval.py) (`RerankedSearchResult`, `RerankResult`)
+  - Engine: [`AeroqAI/modules/module_1_rag/reranker.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_1_rag/reranker.py)
+- **Tech Stack**: Python, `sentence-transformers` (Cross-Encoder), `torch`, NumPy, Pydantic v2
+- **Understanding & Purpose**:
+  Bi-encoder embeddings (Stage 4 & 5) are very fast because query and chunk vectors are computed independently. However, independent vectors miss deep token-level interactions between questions and documents. A **Cross-Encoder Reranker** feeds the `(query, document_chunk)` pair into a joint transformer attention mechanism simultaneously, producing an ultra-precise relevance score.
+  `reranker.py`:
+  - **Pluggable Architecture (`BaseReranker`)**:
+    - `CrossEncoderReranker`: Uses local HuggingFace neural cross-encoder (`cross-encoder/ms-marco-MiniLM-L-6-v2`). Evaluates full cross-attention between user query and retrieved candidates.
+    - `DeterministicMockReranker`: Fast, offline keyword-overlap & token Jaccard scoring engine with zero network or GPU requirements, enabling deterministic unit tests in milliseconds.
+    - Factory function `get_reranker(reranker_type, model_name)` for automated hyperparameter tuning in Module 3 (RAG Optimizer).
+  - **Two-Stage Retrieval (Bi-Encoder + Cross-Encoder)**:
+    - Step 1: Vector store retrieves a broad candidate set (e.g. `top_k=10`).
+    - Step 2: Cross-encoder reranks the candidates and truncates to the top most relevant chunks (e.g. `top_k=3`), discarding false positives.
+  - **Structured Rerank Result**:
+    - Outputs `RerankResult` containing `RerankedSearchResult` items with `rerank_score`, `original_rank`, `new_rank`, and `rerank_latency_ms`.
+    - Includes `get_context_text()` helper for seamless injection into Stage 7 prompt assembly.
+- **Verification & Demo**:
+  - Script: [`run_reranker_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_reranker_demo.py)
+  - Run command: `python run_reranker_demo.py`
+  - Demo test results:
+    - *"What are the exact rules for annual paid leave?"* ➡️ Page 3 Annual Leave chunk promoted to #1 rank with 8.95 relevance score.
+    - *"What is the remote work hybrid policy?"* ➡️ Page 2 Hybrid Model chunk promoted to #1 rank with 8.61 relevance score.
+  - Unit tests: [`tests/test_reranker.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/tests/test_reranker.py) (5 tests covering deterministic mock scoring, empty results, top_k truncation, factory resolution, and local neural CrossEncoder).
+
+---
+
 #### 🔹 Synthetic Test Data Generation
 - **File**: [`scripts/generate_sample_pdf.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/scripts/generate_sample_pdf.py)
 - **Tech Stack**: `reportlab`
@@ -233,8 +264,7 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 - [x] **Stage 3: Text Chunker** (`text_chunker.py`) — *Completed & Tested*
 - [x] **Stage 4: Embedding Generator** (`embedding_generator.py`) — *Completed & Tested*
 - [x] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`) — *Completed & Tested*
-- [ ] **Stage 6: Reranker** (`reranker.py`):
-  - Cross-Encoder score refinement.
+- [x] **Stage 6: Reranker** (`reranker.py`) — *Completed & Tested*
 - [ ] **Stage 7: Context Assembly & LLM Generator** (`generator.py`):
   - Prompt construction and context-augmented response generation.
 

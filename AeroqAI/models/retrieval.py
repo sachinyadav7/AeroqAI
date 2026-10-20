@@ -44,3 +44,40 @@ class RetrievalResult(BaseModel):
     def get_context_text(self, separator: str = "\n\n---\n\n") -> str:
         """Helper to assemble all retrieved chunk contents into a single LLM context string."""
         return separator.join(r.chunk.content for r in self.results)
+
+
+class RerankedSearchResult(BaseModel):
+    """Represents a search result after Cross-Encoder scoring and re-ranking."""
+    chunk: EmbeddedChunk = Field(..., description="The matched embedded text chunk")
+    original_score: float = Field(..., description="Original bi-encoder similarity score")
+    original_rank: int = Field(..., description="Rank prior to reranking")
+    rerank_score: float = Field(..., description="Cross-Encoder relevance score")
+    new_rank: int = Field(..., description="New rank position after reranking")
+
+    def __repr__(self) -> str:
+        return (
+            f"<RerankedSearchResult rank={self.new_rank} (was {self.original_rank}) "
+            f"score={self.rerank_score:.4f} (was {self.original_score:.4f}) "
+            f"chunk_id='{self.chunk.chunk_id}'>"
+        )
+
+
+class RerankResult(BaseModel):
+    """
+    Complete bundle of re-ranked results for a query.
+    
+    Feeds directly into:
+      - Stage 7: Context Assembly & LLM Generation
+      - Module 3: RAG Optimizer (benchmarking reranker ON vs OFF)
+      - Module 6: Interactive RAG Debugger (comparing bi-encoder vs cross-encoder ranking)
+    """
+    query: str = Field(..., description="The query string")
+    results: List[RerankedSearchResult] = Field(default_factory=list, description="Re-ordered search results")
+    top_k: int = Field(..., description="Configured Top-K after reranking")
+    total_reranked: int = Field(default=0, description="Total number of chunks returned after reranking")
+    rerank_latency_ms: float = Field(default=0.0, description="Reranking execution time in milliseconds")
+    reranker_model: str = Field(..., description="Cross-Encoder model identifier")
+
+    def get_context_text(self, separator: str = "\n\n---\n\n") -> str:
+        """Helper to assemble reranked chunk contents into an LLM context string."""
+        return separator.join(r.chunk.content for r in self.results)
