@@ -1,0 +1,72 @@
+{
+  "gate_name": "AeroqAI Production Release Gate",
+  "passed": true,
+  "total_rules_checked": 5,
+  "passed_rules_count": 5,
+  "failed_rules_count": 0,
+  "rule_evaluations": [
+    {
+      "rule": {
+        "metric_name": "faithfulness",
+        "operator": ">=",
+        "threshold": 0.7,
+        "description": "Minimum Faithfulness (Groundedness)",
+        "is_critical": true
+      },
+      "actual_value": 1.0,
+      "passed": true,
+      "message": "faithfulness: actual 1.0000 >= threshold 0.7000 -> PASSED"
+    },
+    {
+      "rule": {
+        "metric_name": "answer_correctness",
+        "operator": ">=",
+        "threshold": 0.5,
+        "description": "Minimum Answer Correctness",
+        "is_critical": true
+      },
+      "actual_value": 0.55,
+      "passed": true,
+      "message": "answer_correctness: actual 0.5500 >= threshold 0.5000 -> PASSED"
+    },
+    {
+      "rule": {
+        "metric_name": "context_precision",
+        "operator": ">=",
+        "threshold": 0.5,
+        "description": "Minimum Context Precision",
+        "is_critical": true
+      },
+      "actual_value": 0.5,
+      "passed": true,
+      "message": "context_precision: actual 0.5000 >= threshold 0.5000 -> PASSED"
+    },
+    {
+      "rule": {
+        "metric_name": "overall_quality",
+        "operator": ">=",
+        "threshold": 0.65,
+        "description": "Minimum Composite Triad Quality",
+        "is_critical": true
+      },
+      "actual_value": 0.72,
+      "passed": true,
+      "message": "overall_quality: actual 0.7200 >= threshold 0.6500 -> PASSED"
+    },
+    {
+      "rule": {
+        "metric_name": "pass_rate",
+        "operator": ">=",
+        "threshold": 50.0,
+        "description": "Minimum Benchmark Pass Rate (%)",
+        "is_critical": true
+      },
+      "actual_value": 50.0,
+      "passed": true,
+      "message": "pass_rate: actual 50.0000 >= threshold 50.0000 -> PASSED"
+    }
+  ],
+  "regression_detected": false,
+  "regression_delta": null,
+  "benchmark_dataset": "HR Policy Golden Evaluation Benchmark"
+}

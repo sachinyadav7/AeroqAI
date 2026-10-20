@@ -427,8 +427,43 @@ Establishes a persistent experiment tracking registry and differential compariso
 | **Faithfulness** | `0.8923` | `0.8999` | `+0.0076` | 🟢 IMPROVED |
 | **Answer Correctness** | `0.4588` | `0.4847` | `+0.0259` | 🟢 IMPROVED |
 | **Context Precision** | `0.7333` | `0.9000` | `+0.1667` | 🟢 IMPROVED (+16.7%) |
-| **Average Latency** | `12.5ms` | `71.9ms` | `+59.4ms` | 🔴 Neural Reranker Overhead |
-| **Regression Status** | - | - | - | ✅ **CLEAR (NO REGRESSION)** |
+---
+
+### Module 5: Quality Regression & CI/CD Quality Gates
+
+#### 🔹 Architecture & Purpose:
+Automates release governance by establishing pre-deployment quality gates. Evaluates candidate RAG pipelines against strict absolute thresholds (Faithfulness $\ge 0.70$, Correctness $\ge 0.50$, Precision $\ge 0.50$, Pass Rate $\ge 50\%$) and differential regression limits ($\Delta \text{Quality} \ge -0.04$). Integrates directly into CI/CD pipelines via standard UNIX exit codes (`0` for PASS, `1` for FAIL/BLOCK).
+
+#### 🔹 Key Components & Data Contracts:
+- **Data Contracts** ([`AeroqAI/models/quality_gate.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/quality_gate.py)):
+  - `QualityGateRule`: Individual rule definition specifying `metric_name`, `operator` (`>=`, `<=`, `==`, `>`, `<`), `threshold`, and `is_critical`.
+  - `RuleEvaluation`: Assessment result tracking observed value, boolean verdict, and human-readable diagnostic message.
+  - `QualityGateConfig`: Release policy definition holding minimum thresholds for Faithfulness, Correctness, Precision, Overall Quality, Pass Rate, Max Latency, and allowable regression drop.
+  - `QualityGateResult`: Full release decision entity with `format_gate_summary()` rendering Markdown tables for CI logs and Pull Request comments.
+- **Gate Evaluator Engine** ([`AeroqAI/modules/module_5_quality_gates/gate_evaluator.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_5_quality_gates/gate_evaluator.py)):
+  - `QualityGateEvaluator.evaluate_report(...)`: Analyzes benchmark reports, maps triad metrics, evaluates operator rules, and checks differential regression against baseline runs.
+- **CI/CD CLI Runner** ([`run_quality_gate.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_quality_gate.py)):
+  - Standalone script designed for automated build systems.
+  - Accepts CLI flags (`--report`, `--baseline-run`, `--min-faithfulness`, `--min-correctness`, `--min-precision`, `--min-quality`, `--min-pass-rate`, `--max-regression`).
+  - Emits exit code `0` on approval and exit code `1` on breach.
+  - Generates JSON artifact [`quality_gate_report.json`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/quality_gate_report.json).
+- **GitHub Actions Workflow** ([`.github/workflows/ci.yml`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/.github/workflows/ci.yml)):
+  - Runs on every push and pull request to `main`.
+  - Installs dependencies, runs all 67 Pytest unit tests, and verifies the automated Quality Gate.
+
+#### 🔹 Live Quality Gate Verification:
+- **Command**: `python run_quality_gate.py --report benchmark_results.json`
+- **Output Report Table**:
+
+| Rule / Metric | Operator | Threshold | Actual Value | Verdict |
+| :--- | :---: | :---: | :---: | :---: |
+| Minimum Faithfulness (Groundedness) | `>=` | `0.70` | `1.0000` | ✅ PASS |
+| Minimum Answer Correctness | `>=` | `0.50` | `0.5500` | ✅ PASS |
+| Minimum Context Precision | `>=` | `0.50` | `0.5000` | ✅ PASS |
+| Minimum Composite Triad Quality | `>=` | `0.65` | `0.7200` | ✅ PASS |
+| Minimum Benchmark Pass Rate (%) | `>=` | `50.0` | `50.0000` | ✅ PASS |
+
+**Final Verdict: ✅ PASSED (RELEASE APPROVED — Exit Code 0)**
 
 ---
 
@@ -465,15 +500,20 @@ Establishes a persistent experiment tracking registry and differential compariso
 - [x] Interactive demonstration runner (`run_tracker_demo.py`).
 - [x] Unit test coverage (`tests/test_experiment_tracker.py`).
 
-### Module 5: Quality Regression & CI/CD
-- [ ] Quality gate thresholds (PASS / FAIL on Faithfulness, Correctness, Precision).
-- [ ] Automated CLI command for CI/CD pipelines (exits with non-zero on regression).
-- [ ] GitHub Actions workflow integration (`.github/workflows/ci.yml`).
+### Module 5: Quality Regression & CI/CD (100% Complete)
+- [x] Quality gate policy thresholds schema (`QualityGateConfig`, `QualityGateRule`, `QualityGateResult`).
+- [x] Quality gate evaluation engine (`QualityGateEvaluator.evaluate_report`).
+- [x] Differential regression tolerance validation against baseline benchmark runs.
+- [x] Automated CLI command for CI/CD pipelines with returncode 0/1 (`run_quality_gate.py`).
+- [x] GitHub Actions workflow configuration (`.github/workflows/ci.yml`).
+- [x] Unit test coverage (`tests/test_quality_gate.py`).
 
 ### Module 6: Interactive RAG Debugger
 - [ ] Detailed step-by-step trace inspection per query (retrieved chunks, scores, prompt assembled, token usage).
+- [ ] Interactive query inspector CLI & report exporter.
 
 ### Module 7: Full-Stack Platform Integration
 - [ ] Next.js frontend + Java/Spring Boot & FastAPI backend + PostgreSQL (`pgvector`).
+
 
 

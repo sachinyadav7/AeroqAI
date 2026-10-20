@@ -6,6 +6,12 @@ from AeroqAI.models.generation import SourceCitation, GenerationResult
 from AeroqAI.models.evaluation import EvaluationSample, MetricScore, SampleEvaluationResult, BenchmarkReport
 from AeroqAI.models.optimization import PipelineConfig, OptimizationTrial, OptimizationResult
 from AeroqAI.models.experiment import RunMetadata, RunMetrics, ExperimentRun, RunComparison
+from AeroqAI.models.quality_gate import (
+    QualityGateRule,
+    RuleEvaluation,
+    QualityGateConfig,
+    QualityGateResult
+)
 
 __all__ = [
     "RawDocument",
@@ -30,6 +36,10 @@ __all__ = [
     "RunMetadata",
     "RunMetrics",
     "ExperimentRun",
-    "RunComparison"
+    "RunComparison",
+    "QualityGateRule",
+    "RuleEvaluation",
+    "QualityGateConfig",
+    "QualityGateResult"
 ]
 
