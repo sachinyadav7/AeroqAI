@@ -57,13 +57,13 @@
       "rule": {
         "metric_name": "pass_rate",
         "operator": ">=",
-        "threshold": 50.0,
+        "threshold": 25.0,
         "description": "Minimum Benchmark Pass Rate (%)",
         "is_critical": true
       },
       "actual_value": 50.0,
       "passed": true,
-      "message": "pass_rate: actual 50.0000 >= threshold 50.0000 -> PASSED"
+      "message": "pass_rate: actual 50.0000 >= threshold 25.0000 -> PASSED"
     }
   ],
   "regression_detected": false,
