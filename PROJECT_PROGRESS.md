@@ -369,6 +369,39 @@ Ground Truth Dataset ➡️ [RAG Pipeline: Module 1] ➡️ (Generated Answer, C
 
 ---
 
+### Module 3: RAG Optimizer (Hyperparameter Search & Pareto Frontier)
+
+#### 🔹 Architecture & Purpose:
+Automates hyperparameter exploration across document chunk sizes, overlap ratios, retrieval depths (Top-K), and neural cross-encoder reranking. Solves the core trade-off between **Quality**, **Speed (Latency)**, and **Cost** by calculating the non-dominated Pareto Efficient Frontier.
+
+#### 🔹 Key Components & Data Contracts:
+- **Data Contracts** ([`AeroqAI/models/optimization.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/optimization.py)):
+  - `PipelineConfig`: Defines hyperparameter combinations (`chunk_size`, `chunk_overlap`, `top_k`, `use_reranker`, `reranker_top_k`, `embedding_provider`, `generator_provider`).
+  - `OptimizationTrial`: Performance scorecard for a single evaluated pipeline configuration (`overall_quality_score`, `faithfulness`, `answer_correctness`, `context_precision`, `avg_latency_ms`, `estimated_cost_per_1k_queries`, `is_pareto_optimal`).
+  - `OptimizationResult`: Summary bundle with `search_space_name`, `best_trial`, `fastest_trial`, `pareto_frontier`, `all_trials`, and automated markdown reporting via `format_summary_table()`.
+- **Optimization Engine** ([`AeroqAI/modules/module_3_optimizer/optimizer.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_3_optimizer/optimizer.py)):
+  - **Embedded Chunk Caching (`_embedding_cache`)**: Avoids re-computing expensive document embeddings across configurations that share identical `(chunk_size, chunk_overlap, strategy)`.
+  - **Multi-Objective Non-Dominated Sort (`compute_pareto_frontier`)**: Evaluates trial dominance across Quality (maximize), Latency (minimize), and Cost (minimize) to extract the efficient Pareto frontier.
+  - **Grid Search Runner (`optimize_grid`)**: Evaluates Cartesian products of parameter spaces and compiles scorecards.
+
+#### 🔹 Live Demo & Empirical Findings:
+- **Runner Script**: [`run_optimizer_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_optimizer_demo.py)
+- **Exported Report**: [`optimization_report.json`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/optimization_report.json)
+- **Pareto Grid Report**:
+
+| Trial ID | Chunk / Overlap | Top-K | Reranker | Quality | Correctness | Precision | Latency | Pareto? |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `trial_001` | `400/60` | `3` | `OFF` | `0.6871` | `0.4588` | `0.7333` | `12.5ms` | ⭐ YES |
+| `trial_002` | `400/60` | `3` | `ON (2)` | `0.6947` | `0.4560` | `0.8000` | `54.3ms` | ⭐ YES |
+| `trial_003` | `800/60` | `3` | `OFF` | `0.7070` | `0.4847` | `0.7333` | `11.8ms` | ⭐ YES |
+| `trial_004` | `800/60` | `3` | `ON (2)` | `0.7338` | `0.4847` | `0.9000` | `71.9ms` | ⭐ YES |
+
+> **Key Optimization Finding**:
+> - **Best Quality Target**: `trial_004` (Chunk 800, Overlap 60, Top-K 3, Reranker ON) achieves **0.7338 Quality** and **0.9000 Context Precision** — outperforming the baseline configuration.
+> - **Lowest Latency Target**: `trial_003` (Chunk 800, Overlap 60, Top-K 3, Reranker OFF) achieves **11.8ms query latency** with strong **0.7070 Quality**.
+
+---
+
 ## 🚀 Next Stages & Roadmap
 
 ### Module 1: RAG Pipeline (100% Complete)
@@ -387,19 +420,26 @@ Ground Truth Dataset ➡️ [RAG Pipeline: Module 1] ➡️ (Generated Answer, C
 - [x] Offline heuristic scoring (`DeterministicEvaluator` for CI/CD)
 - [x] Automated benchmark runner & reporting artifact (`run_evaluation_demo.py`, `benchmark_results.json`)
 
-### Module 3: RAG Optimizer
-- [ ] Hyperparameter grid execution across chunk sizes, Top-K, embedding models, and prompts.
-- [ ] Pareto frontier analysis (Cost vs. Speed vs. Quality).
+### Module 3: RAG Optimizer (100% Complete)
+- [x] Hyperparameter grid execution across chunk sizes, overlap, Top-K, and rerankers (`RAGOptimizer.optimize_grid`).
+- [x] Embedding & chunking cache to eliminate redundant computations.
+- [x] Multi-objective Pareto frontier analysis (Cost vs. Speed vs. Quality) (`RAGOptimizer.compute_pareto_frontier`).
+- [x] Live optimizer runner & JSON artifact export (`run_optimizer_demo.py`, `optimization_report.json`).
+- [x] Unit test coverage (`tests/test_optimizer.py`).
 
 ### Module 4: Experiment Tracking
-- [ ] Logging run configurations, scores, latency, tokens, and cost for comparison.
+- [ ] Experiment & run schema (`ExperimentRun`, `RunMetadata`, `RunComparison`).
+- [ ] Local JSON / SQLite run registry for tracking parameter sweeps, versions, and metrics.
+- [ ] Run comparison engine and diff visualizer (Baseline vs. Candidate).
 
 ### Module 5: Quality Regression & CI/CD
-- [ ] Baseline vs. Candidate comparison logic.
-- [ ] Quality gates (PASS / FAIL) integrated with GitHub Actions.
+- [ ] Quality gate thresholds (PASS / FAIL on Faithfulness, Correctness, Precision).
+- [ ] Automated CLI command for CI/CD pipelines (exits with non-zero on regression).
+- [ ] GitHub Actions workflow integration.
 
 ### Module 6: Interactive RAG Debugger
-- [ ] Detailed step-by-step trace inspection per query.
+- [ ] Detailed step-by-step trace inspection per query (retrieved chunks, scores, prompt assembled, token usage).
 
 ### Module 7: Full-Stack Platform Integration
 - [ ] Next.js frontend + Java/Spring Boot & FastAPI backend + PostgreSQL (`pgvector`).
+
