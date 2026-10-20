@@ -33,6 +33,12 @@ from AeroqAI.modules.module_1_rag.reranker import (
     RerankerError,
     get_reranker
 )
+from AeroqAI.modules.module_1_rag.generator import (
+    BaseLLMGenerator,
+    DeterministicMockGenerator,
+    OpenAIGenerator,
+    get_llm_generator
+)
 
 __all__ = [
     "PDFDocumentLoader",
@@ -55,6 +61,10 @@ __all__ = [
     "DeterministicMockReranker",
     "CrossEncoderReranker",
     "RerankerError",
-    "get_reranker"
+    "get_reranker",
+    "BaseLLMGenerator",
+    "DeterministicMockGenerator",
+    "OpenAIGenerator",
+    "get_llm_generator"
 ]
 

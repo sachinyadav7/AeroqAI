@@ -69,10 +69,13 @@ class DeterministicMockReranker(BaseReranker):
     def rerank(
         self,
         query: str,
-        search_results: Sequence[SearchResult],
+        search_results: Union[Sequence[SearchResult], RetrievalResult],
         top_k: Optional[int] = None
     ) -> RerankResult:
         start_time = time.perf_counter()
+
+        if hasattr(search_results, "results"):
+            search_results = search_results.results
 
         if not search_results:
             return RerankResult(
@@ -168,10 +171,13 @@ class CrossEncoderReranker(BaseReranker):
     def rerank(
         self,
         query: str,
-        search_results: Sequence[SearchResult],
+        search_results: Union[Sequence[SearchResult], RetrievalResult],
         top_k: Optional[int] = None
     ) -> RerankResult:
         start_time = time.perf_counter()
+
+        if hasattr(search_results, "results"):
+            search_results = search_results.results
 
         if not search_results:
             return RerankResult(
@@ -236,7 +242,8 @@ def get_reranker(
     """
     Factory helper for reranker instantiation.
     """
-    prov = provider.lower().strip()
+    prov_str = kwargs.pop("reranker_type", provider)
+    prov = prov_str.lower().strip()
     if prov in ("cross-encoder", "cross_encoder", "hf", "sentence-transformers"):
         name = model_name or "cross-encoder/ms-marco-MiniLM-L-6-v2"
         return CrossEncoderReranker(model_name=name, **kwargs)

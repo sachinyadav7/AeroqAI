@@ -41,7 +41,8 @@ Major-Project/
 │   │   ├── __init__.py
 │   │   ├── document.py                 # DocumentMetadata, RawDocument, CleanedDocument
 │   │   ├── chunk.py                    # ChunkMetadata, TextChunk, EmbeddedChunk
-│   │   └── retrieval.py                # SearchResult, RetrievalResult, RerankResult
+│   │   ├── retrieval.py                # SearchResult, RetrievalResult, RerankResult
+│   │   └── generation.py               # Stage 7: SourceCitation, GenerationResult
 │   ├── modules/                        # Core system modules
 │   │   ├── __init__.py
 │   │   └── module_1_rag/               # Module 1: Core RAG Pipeline
@@ -51,19 +52,28 @@ Major-Project/
 │   │       ├── text_chunker.py         # Stage 3: Recursive & fixed-size text chunker
 │   │       ├── embedding_generator.py  # Stage 4: Pluggable vector embedding engine
 │   │       ├── vector_store.py         # Stage 5: In-memory & pgvector similarity search
-│   │       └── reranker.py             # Stage 6: Cross-Encoder neural reranker
+│   │       ├── reranker.py             # Stage 6: Cross-Encoder neural reranker
+│   │       └── generator.py            # Stage 7: Context assembly & LLM generation
 │   └── data/
 │       └── sample_docs/
 │           └── hr_policy.pdf           # 10-page enterprise test document
 ├── scripts/
 │   └── generate_sample_pdf.py          # Script generating multi-page test PDF
-└── tests/                              # Automated test suites
+├── run_loader_demo.py                  # Stage 1 interactive demo
+├── run_cleaner_demo.py                 # Stage 2 interactive demo
+├── run_chunker_demo.py                 # Stage 3 interactive demo
+├── run_embedder_demo.py                # Stage 4 interactive demo
+├── run_retriever_demo.py               # Stage 5 interactive demo
+├── run_reranker_demo.py                # Stage 6 interactive demo
+├── run_generator_demo.py               # Stage 7 complete end-to-end RAG demo
+└── tests/                              # Automated test suites (44 tests passing)
     ├── test_document_loader.py         # Stage 1 unit tests
     ├── test_text_cleaner.py            # Stage 2 unit tests
     ├── test_text_chunker.py            # Stage 3 unit tests
     ├── test_embedding_generator.py     # Stage 4 unit tests
     ├── test_vector_store.py            # Stage 5 unit tests
-    └── test_reranker.py                # Stage 6 unit tests
+    ├── test_reranker.py                # Stage 6 unit tests
+    └── test_generator.py               # Stage 7 unit tests
 ```
 
 ---
@@ -248,6 +258,40 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ---
 
+#### 🔹 Stage 7: Context Assembly & LLM Generator
+- **Files**:
+  - Models: [`AeroqAI/models/generation.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/models/generation.py) (`SourceCitation`, `GenerationResult`)
+  - Engine: [`AeroqAI/modules/module_1_rag/generator.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/AeroqAI/modules/module_1_rag/generator.py)
+- **Tech Stack**: Python, `openai`, Pydantic v2
+- **Understanding & Purpose**:
+  Raw retrieved chunks cannot be directly presented to an end-user; they must be structured into an augmented prompt, verified against strict ground rules (to prevent hallucination), and synthesized into a coherent answer with verifiable page citations.
+  `generator.py`:
+  - **Prompt Engineering & Groundedness Guardrails**:
+    - Default system prompt instructs the model to answer strictly based on provided context and to explicitly refuse out-of-domain questions with: *"I cannot find the answer in the provided documents."*
+    - Automatically injects bracketed source provenance headers: `[Source {i}: {file} | Page {page} | Chunk: {id}]`.
+  - **Pluggable Architecture (`BaseLLMGenerator`)**:
+    - `DeterministicMockGenerator`: Ultra-fast offline lexical and keyword-matching generation engine. Extracts highest-scoring sentences from context with citations, detects when candidate cross-encoder scores are negative (irrelevant), and enforces negative refusal for out-of-domain queries with zero network requests or API costs.
+    - `OpenAIGenerator`: Production connector compatible with OpenAI (`gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`) or any OpenAI-compatible local/remote endpoint (vLLM, Ollama, LMStudio, Groq). Records token consumption (`prompt_tokens`, `completion_tokens`, `total_tokens`) and generation latency.
+    - Factory function `get_llm_generator(provider, model_name)` for automated hyperparameter tuning in Module 3 (RAG Optimizer).
+  - **Structured Generation Contract (`GenerationResult`)**:
+    - Returns `query`, `answer`, `sources` (list of `SourceCitation` with doc ID, page number, chunk ID, relevance score), `grounded` (boolean status), `prompt_tokens`, `completion_tokens`, `latency_ms`, and helper `get_formatted_sources()`.
+- **Verification & Demo**:
+  - Script: [`run_generator_demo.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/run_generator_demo.py) (Executes complete 7-stage pipeline end-to-end against `hr_policy.pdf`).
+  - Run command: `python run_generator_demo.py`
+  - Demo test results:
+    - Query 1 (*"What are the rules and allowances for annual paid leave and carry-over?"*):
+      - Latency: 164.28 ms | Status: `✅ GROUNDED` | Sources: Page 3 (Score: 6.20).
+      - Answer: Accurately cited 20 days paid annual leave and 25 days for senior staff.
+    - Query 2 (*"What are the core working hours and remote hybrid schedule?"*):
+      - Latency: 124.20 ms | Status: `✅ GROUNDED` | Sources: Page 2 (Score: 8.57).
+      - Answer: Accurately cited 10:00 AM to 4:00 PM EST core hours.
+    - Query 3 (*"What is the company policy for spaceships and warp speed travel?"*):
+      - Latency: 263.70 ms | Status: `❌ UNGROUNDED / REFUSED`.
+      - Answer: Refused cleanly: *"I cannot find the answer in the provided documents."* (No hallucinations).
+  - Unit tests: [`tests/test_generator.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/tests/test_generator.py) (9 unit tests verifying context assembly, retrieval/rerank citation parsing, grounded answer synthesis, negative refusal fallback, prompt formatting, token counts, factory resolution, and mocked OpenAI chat completions).
+
+---
+
 #### 🔹 Synthetic Test Data Generation
 - **File**: [`scripts/generate_sample_pdf.py`](file:///c:/Users/Admin/OneDrive/Desktop/Major-Project/scripts/generate_sample_pdf.py)
 - **Tech Stack**: `reportlab`
@@ -258,15 +302,16 @@ Raw PDF / Docs ➡️ [Stage 1: Loader] ➡️ RawDocument
 
 ## 🚀 Next Stages & Roadmap
 
-### Module 1: RAG Pipeline
+### Module 1: RAG Pipeline (100% Complete)
 - [x] **Stage 1: Document Loader** (`document_loader.py`) — *Completed & Tested*
 - [x] **Stage 2: Text Cleaner & Normalizer** (`text_cleaner.py`) — *Completed & Tested*
 - [x] **Stage 3: Text Chunker** (`text_chunker.py`) — *Completed & Tested*
 - [x] **Stage 4: Embedding Generator** (`embedding_generator.py`) — *Completed & Tested*
 - [x] **Stage 5: Vector Store & Retrieval Engine** (`vector_store.py`) — *Completed & Tested*
 - [x] **Stage 6: Reranker** (`reranker.py`) — *Completed & Tested*
-- [ ] **Stage 7: Context Assembly & LLM Generator** (`generator.py`):
-  - Prompt construction and context-augmented response generation.
+- [x] **Stage 7: Context Assembly & LLM Generator** (`generator.py`) — *Completed & Tested*
+
+> **Milestone Achieved**: Complete 7-Stage Enterprise RAG Pipeline is operational with 44 passing unit tests and end-to-end interactive verification.
 
 ### Module 2: Automated Evaluation Engine
 - [ ] Ground-truth dataset schema (Question, Expected Answer, Reference Context).

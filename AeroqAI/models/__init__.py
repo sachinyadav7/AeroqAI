@@ -2,6 +2,7 @@
 from AeroqAI.models.document import RawDocument, CleanedDocument, DocumentMetadata
 from AeroqAI.models.chunk import TextChunk, ChunkMetadata, EmbeddedChunk
 from AeroqAI.models.retrieval import SearchResult, RetrievalResult, RerankedSearchResult, RerankResult
+from AeroqAI.models.generation import SourceCitation, GenerationResult
 
 __all__ = [
     "RawDocument",
@@ -13,6 +14,8 @@ __all__ = [
     "SearchResult",
     "RetrievalResult",
     "RerankedSearchResult",
-    "RerankResult"
+    "RerankResult",
+    "SourceCitation",
+    "GenerationResult"
 ]
 
