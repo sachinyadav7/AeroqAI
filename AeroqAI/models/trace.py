@@ -57,6 +57,14 @@ class GenerationStageTrace(BaseModel):
     estimated_prompt_tokens: int = Field(0, description="Estimated input token count")
     estimated_completion_tokens: int = Field(0, description="Estimated output token count")
     latency_ms: float = Field(..., description="LLM generation inference latency in milliseconds")
+    answer: Optional[str] = Field(None, description="Direct alias for generated_answer")
+    citations: Optional[List[str]] = Field(None, description="Direct alias for source_citations")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.answer is None:
+            self.answer = self.generated_answer
+        if self.citations is None:
+            self.citations = self.source_citations
 
 
 class QueryExecutionTrace(BaseModel):
@@ -77,8 +85,20 @@ class QueryExecutionTrace(BaseModel):
     prompt_assembly: PromptAssemblyStageTrace = Field(..., description="Prompt assembly diagnostics")
     generation: GenerationStageTrace = Field(..., description="LLM generation diagnostics")
     
+    # Stage Map for legacy UI / client components
+    stages: Optional[Dict[str, Any]] = Field(None, description="Compatibility mapping for stage diagnostics")
+
     # Optional Real-Time Triad Evaluation
     evaluation: Optional[Dict[str, Any]] = Field(None, description="Optional Triad evaluation against ground truth")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.stages is None:
+            self.stages = {
+                "retrieval": self.retrieval,
+                "rerank": self.rerank,
+                "prompt_assembly": self.prompt_assembly,
+                "generation": self.generation,
+            }
 
     def format_trace_report(self) -> str:
         """Render a comprehensive, readable markdown trace inspection report."""

@@ -47,6 +47,13 @@ export default function DebuggerView() {
     }
   };
 
+  const retrieval = trace?.retrieval || trace?.stages?.retrieval || {};
+  const rerank = trace?.rerank || trace?.stages?.rerank || null;
+  const promptAssembly = trace?.prompt_assembly || trace?.stages?.prompt_assembly || {};
+  const generation = trace?.generation || trace?.stages?.generation || {};
+  const totalLatency = trace?.total_latency_ms || ((retrieval.latency_ms || 0) + (rerank?.latency_ms || 0) + (generation.latency_ms || 0)) || 1;
+  const chunkList = rerank?.reranked_chunks || retrieval.retrieved_chunks || trace?.stages?.retrieval?.candidate_chunks || [];
+
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
       
@@ -187,7 +194,7 @@ export default function DebuggerView() {
                 <div>
                   <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Execution Latency Waterfall</h3>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Total End-to-End Pipeline Latency: <strong>{trace.total_latency_ms.toFixed(1)} ms</strong>
+                    Total End-to-End Pipeline Latency: <strong>{totalLatency.toFixed(1)} ms</strong>
                   </span>
                 </div>
               </div>
@@ -206,18 +213,18 @@ export default function DebuggerView() {
               }}>
                 <div 
                   style={{ 
-                    width: `${Math.max(5, (trace.stages.retrieval.latency_ms / trace.total_latency_ms) * 100)}%`,
+                    width: `${Math.max(5, ((retrieval.latency_ms || 0) / totalLatency) * 100)}%`,
                     backgroundColor: '#3B82F6'
                   }} 
-                  title={`Vector Retrieval: ${trace.stages.retrieval.latency_ms.toFixed(1)}ms`}
+                  title={`Vector Retrieval: ${(retrieval.latency_ms || 0).toFixed(1)}ms`}
                 />
-                {trace.stages.rerank && (
+                {rerank && (
                   <div 
                     style={{ 
-                      width: `${Math.max(5, (trace.stages.rerank.latency_ms / trace.total_latency_ms) * 100)}%`,
+                      width: `${Math.max(5, ((rerank.latency_ms || 0) / totalLatency) * 100)}%`,
                       backgroundColor: '#F5B942'
                     }} 
-                    title={`Cross-Encoder Rerank: ${trace.stages.rerank.latency_ms.toFixed(1)}ms`}
+                    title={`Cross-Encoder Rerank: ${(rerank.latency_ms || 0).toFixed(1)}ms`}
                   />
                 )}
                 <div 
@@ -225,7 +232,7 @@ export default function DebuggerView() {
                     flex: 1,
                     backgroundColor: '#7567FF'
                   }} 
-                  title={`LLM Generation: ${trace.stages.generation.latency_ms.toFixed(1)}ms`}
+                  title={`LLM Generation: ${(generation.latency_ms || 0).toFixed(1)}ms`}
                 />
               </div>
 
@@ -233,17 +240,17 @@ export default function DebuggerView() {
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.8rem' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3B82F6' }} />
-                  Vector Retrieval: <strong>{trace.stages.retrieval.latency_ms.toFixed(1)} ms</strong>
+                  Vector Retrieval: <strong>{(retrieval.latency_ms || 0).toFixed(1)} ms</strong>
                 </span>
-                {trace.stages.rerank && (
+                {rerank && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F5B942' }} />
-                    Cross-Encoder Rerank: <strong>{trace.stages.rerank.latency_ms.toFixed(1)} ms</strong>
+                    Cross-Encoder Rerank: <strong>{(rerank.latency_ms || 0).toFixed(1)} ms</strong>
                   </span>
                 )}
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#7567FF' }} />
-                  LLM Generation: <strong>{trace.stages.generation.latency_ms.toFixed(1)} ms</strong>
+                  LLM Generation: <strong>{(generation.latency_ms || 0).toFixed(1)} ms</strong>
                 </span>
               </div>
             </div>
@@ -284,9 +291,9 @@ export default function DebuggerView() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(trace.stages.rerank?.reranked_chunks || trace.stages.retrieval.candidate_chunks).map((c, i) => {
-                        const shift = c.rank_shift || 0;
-                        const isRetained = c.is_retained ?? (i < rerankTopK);
+                      {chunkList.map((c, i) => {
+                        const shift = c.rank_delta ?? c.rank_shift ?? 0;
+                        const isRetained = c.retained_in_context ?? c.is_retained ?? (i < rerankTopK);
                         return (
                           <tr key={c.chunk_id || i} style={{ opacity: isRetained ? 1 : 0.65 }}>
                             <td>
@@ -296,7 +303,7 @@ export default function DebuggerView() {
                             <td>
                               <div>#{c.initial_rank || i + 1}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                                sim: {c.initial_similarity?.toFixed(3) || "0.780"}
+                                sim: {(c.initial_retrieval_score ?? c.initial_similarity ?? 0.78).toFixed(3)}
                               </div>
                             </td>
                             <td>
@@ -343,7 +350,7 @@ export default function DebuggerView() {
                   <div>
                     <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Grounded LLM Generation</h3>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Model: {trace.stages.generation.model_name}
+                      Model: {generation.model_name || "Enterprise LLM"}
                     </span>
                   </div>
                 </div>
@@ -361,7 +368,7 @@ export default function DebuggerView() {
                   lineHeight: 1.6,
                   color: 'var(--text-primary)'
                 }}>
-                  {trace.stages.generation.answer}
+                  {generation.generated_answer || generation.answer || "No response generated."}
                 </div>
 
                 {/* Source Citations */}
@@ -370,9 +377,9 @@ export default function DebuggerView() {
                     Document Provenance Citations
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    {trace.stages.generation.citations?.map((cit, idx) => (
+                    {(generation.source_citations || generation.citations || []).map((cit, idx) => (
                       <span key={idx} className="badge-pill neutral" style={{ fontSize: '0.75rem' }}>
-                        {cit.citation_label || `[Page ${cit.page_number}]`}
+                        {typeof cit === 'string' ? cit : (cit.citation_label || `[Page ${cit.page_number}]`)}
                       </span>
                     ))}
                   </div>
@@ -393,7 +400,7 @@ export default function DebuggerView() {
                       <div style={{ padding: '0.6rem', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                         <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Faithfulness</div>
                         <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--success)' }}>
-                          {(trace.evaluation.faithfulness * 100).toFixed(0)}%
+                          {((trace.evaluation.faithfulness || 0) * 100).toFixed(0)}%
                         </div>
                       </div>
 
@@ -407,7 +414,7 @@ export default function DebuggerView() {
                       <div style={{ padding: '0.6rem', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                         <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Quality</div>
                         <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                          {(trace.evaluation.quality_score * 100).toFixed(0)}%
+                          {((trace.evaluation.quality_score || 0) * 100).toFixed(0)}%
                         </div>
                       </div>
                     </div>
@@ -439,7 +446,7 @@ export default function DebuggerView() {
                       whiteSpace: 'pre-wrap',
                       color: 'var(--text-secondary)'
                     }}>
-                      {trace.stages.prompt_assembly?.full_prompt || "No prompt context recorded."}
+                      {promptAssembly.assembled_prompt_preview || promptAssembly.full_prompt || promptAssembly.system_prompt || "No prompt context recorded."}
                     </pre>
                   )}
                 </div>

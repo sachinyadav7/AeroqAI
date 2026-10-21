@@ -114,7 +114,7 @@ export default function WorkflowStudioView({ setActiveTab }) {
       x: 1040,
       y: 50,
       status: 'HEALTHY',
-      duration: traceResult ? `${traceResult.stages.retrieval.latency_ms.toFixed(1)} ms` : '12.6 ms',
+      duration: traceResult ? `${((traceResult.retrieval?.latency_ms ?? traceResult.stages?.retrieval?.latency_ms ?? 12.6)).toFixed(1)} ms` : '12.6 ms',
       config: {
         store_type: 'InMemoryVectorStore',
         similarity_metric: 'Cosine Similarity',
@@ -133,7 +133,7 @@ export default function WorkflowStudioView({ setActiveTab }) {
       x: 1040,
       y: 280,
       status: 'HEALTHY',
-      duration: traceResult ? `${traceResult.stages.rerank.latency_ms.toFixed(1)} ms` : '38.2 ms',
+      duration: traceResult ? `${((traceResult.rerank?.latency_ms ?? traceResult.stages?.rerank?.latency_ms ?? 38.2)).toFixed(1)} ms` : '38.2 ms',
       config: {
         model: 'cross-encoder/ms-marco-MiniLM-L-6-v2',
         reranker_top_k: 2,
@@ -169,7 +169,7 @@ export default function WorkflowStudioView({ setActiveTab }) {
       x: 540,
       y: 280,
       status: 'HEALTHY',
-      duration: traceResult ? `${(traceResult.stages.generation.latency_ms / 1000).toFixed(2)} s` : '1.24 s',
+      duration: traceResult ? `${(((traceResult.generation?.latency_ms ?? traceResult.stages?.generation?.latency_ms ?? 1240)) / 1000).toFixed(2)} s` : '1.24 s',
       config: {
         provider: 'Groq Cloud LPU',
         model: 'openai/gpt-oss-120b',
@@ -574,7 +574,7 @@ export default function WorkflowStudioView({ setActiveTab }) {
               <div>
                 <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Live Pipeline Trace Generated</h3>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Total Latency: {traceResult.total_latency_ms.toFixed(1)} ms • Retained Passages: {traceResult.stages.rerank?.reranked_chunks?.length || 2}
+                  Total Latency: {(traceResult.total_latency_ms || 0).toFixed(1)} ms • Retained Passages: {(traceResult.rerank?.reranked_chunks || traceResult.stages?.rerank?.reranked_chunks || traceResult.retrieval?.retrieved_chunks)?.length || 2}
                 </span>
               </div>
             </div>
@@ -587,12 +587,12 @@ export default function WorkflowStudioView({ setActiveTab }) {
           </div>
           <div className="card-body">
             <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-              <strong>Answer:</strong> {traceResult.stages.generation.answer}
+              <strong>Answer:</strong> {traceResult.generation?.generated_answer || traceResult.generation?.answer || traceResult.stages?.generation?.answer || "No response generated."}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {traceResult.stages.generation.citations?.map((c, i) => (
+              {(traceResult.generation?.source_citations || traceResult.generation?.citations || traceResult.stages?.generation?.citations || []).map((c, i) => (
                 <span key={i} className="badge-pill neutral" style={{ fontSize: '0.72rem' }}>
-                  {c.citation_label || `[Page: ${c.page_number}]`}
+                  {typeof c === 'string' ? c : (c.citation_label || `[Page: ${c.page_number}]`)}
                 </span>
               ))}
             </div>
