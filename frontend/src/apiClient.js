@@ -15,6 +15,20 @@ export async function fetchCorpus() {
   return res.json();
 }
 
+export async function uploadDocument(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_BASE}/api/system/upload`, {
+    method: "POST",
+    body: formData
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Upload failed" }));
+    throw new Error(err.detail || "Failed to upload document");
+  }
+  return res.json();
+}
+
 export async function executeQuery(query, topK = 4, useReranker = true, rerankerTopK = 2) {
   const res = await fetch(`${API_BASE}/api/rag/query`, {
     method: "POST",

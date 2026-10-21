@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Database, 
   FileText, 
@@ -10,9 +10,13 @@ import {
   Clock, 
   Search,
   ExternalLink,
-  RotateCcw
+  RotateCcw,
+  Upload,
+  AlertCircle,
+  FileCheck,
+  ArrowRight
 } from 'lucide-react';
-import { fetchDatasets, fetchCorpus } from '../apiClient';
+import { fetchDatasets, fetchCorpus, uploadDocument } from '../apiClient';
 
 export default function DatasetsView() {
   const [datasets, setDatasets] = useState([]);
@@ -20,6 +24,12 @@ export default function DatasetsView() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('benchmarks'); // 'benchmarks' | 'corpus' | 'chunks'
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Upload states
+  const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle' | 'uploading' | 'success' | 'error'
+  const [uploadResult, setUploadResult] = useState(null);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     loadData();
@@ -38,6 +48,35 @@ export default function DatasetsView() {
       console.warn("Error loading datasets/corpus:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      setUploadError("Only PDF files (.pdf) are supported for automated ingestion.");
+      setUploadStatus('error');
+      return;
+    }
+
+    setUploadStatus('uploading');
+    setUploadError('');
+    setUploadResult(null);
+
+    try {
+      const result = await uploadDocument(file);
+      setUploadResult(result);
+      setUploadStatus('success');
+      // Refresh corpus after indexing
+      await loadData();
+      setActiveTab('corpus');
+    } catch (err) {
+      setUploadError(err.message || "Failed to process and index PDF document.");
+      setUploadStatus('error');
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -78,30 +117,134 @@ export default function DatasetsView() {
           </p>
         </div>
 
-        <button 
-          className="btn btn-secondary btn-sm"
-          onClick={loadData}
-          title="Refresh dataset inventory"
-        >
-          <RotateCcw size={14} />
-          <span>Refresh Inventory</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.6rem' }}>
+          <input
+            type="file"
+            accept=".pdf"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+          />
+          <button 
+            className="btn btn-primary btn-sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadStatus === 'uploading'}
+          >
+            <Upload size={14} />
+            <span>{uploadStatus === 'uploading' ? 'Indexing PDF...' : 'Upload Custom PDF'}</span>
+          </button>
+
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={loadData}
+            title="Refresh dataset inventory"
+          >
+            <RotateCcw size={14} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
+
+      {/* Upload Notification / Status Banner */}
+      {uploadStatus === 'uploading' && (
+        <div className="card" style={{
+          padding: '1rem 1.25rem',
+          borderLeft: '4px solid var(--accent-secondary)',
+          backgroundColor: 'var(--accent-secondary-muted)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div className="status-indicator warning pulse" style={{ width: 12, height: 12 }} />
+          <div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+              Extracting, Chunking & Embedding Document...
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              AeroqAI is extracting pages with PDFDocumentLoader, generating dense embeddings with all-MiniLM-L6-v2, and indexing into the vector store.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {uploadStatus === 'success' && uploadResult && (
+        <div className="card" style={{
+          padding: '1rem 1.25rem',
+          borderLeft: '4px solid var(--success)',
+          backgroundColor: 'var(--success-muted)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.75rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <FileCheck size={20} style={{ color: 'var(--success)' }} />
+            <div>
+              <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                Successfully Ingested: {uploadResult.document_name}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Extracted <strong>{uploadResult.pages_loaded} pages</strong> into <strong>{uploadResult.chunks_indexed} vector chunks</strong> ({uploadResult.total_characters?.toLocaleString()} characters, {uploadResult.vector_dimensions}-d embeddings).
+              </div>
+            </div>
+          </div>
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={() => setUploadStatus('idle')}
+            style={{ fontSize: '0.75rem' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {uploadStatus === 'error' && (
+        <div className="card" style={{
+          padding: '1rem 1.25rem',
+          borderLeft: '4px solid var(--danger)',
+          backgroundColor: 'var(--danger-muted)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <AlertCircle size={20} style={{ color: 'var(--danger)' }} />
+            <div>
+              <div style={{ fontWeight: 600, color: 'var(--danger)', fontSize: '0.9rem' }}>
+                Upload Failed
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                {uploadError}
+              </div>
+            </div>
+          </div>
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={() => setUploadStatus('idle')}
+            style={{ fontSize: '0.75rem' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Dataset Statistics KPI Row */}
       <div className="kpi-grid">
         <div className="kpi-card">
           <div className="kpi-header">
-            <span className="kpi-label">Ingested Documents</span>
+            <span className="kpi-label">Active Document</span>
             <div className="kpi-icon-wrap" style={{ background: 'var(--accent-primary-muted)', color: 'var(--accent-primary)' }}>
               <FileText size={16} />
             </div>
           </div>
           <div className="kpi-value-row">
-            <span className="kpi-value">1</span>
-            <span className="kpi-trend positive">PDF Verified</span>
+            <span className="kpi-value" style={{ fontSize: '1.25rem', wordBreak: 'break-all' }}>
+              {corpusData?.document_name || "hr_policy.pdf"}
+            </span>
+            <span className="kpi-trend positive">Active Corpus</span>
           </div>
-          <span className="kpi-subtext">hr_policy.pdf (10 Pages extracted)</span>
+          <span className="kpi-subtext">{corpusData?.total_pages || 10} Pages extracted & verified</span>
         </div>
 
         <div className="kpi-card">

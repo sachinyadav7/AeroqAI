@@ -1,9 +1,9 @@
 {
   "gate_name": "AeroqAI Automated API Release Gate",
-  "passed": true,
+  "passed": false,
   "total_rules_checked": 5,
-  "passed_rules_count": 5,
-  "failed_rules_count": 0,
+  "passed_rules_count": 1,
+  "failed_rules_count": 4,
   "rule_evaluations": [
     {
       "rule": {
@@ -25,9 +25,9 @@
         "description": "Minimum Answer Correctness",
         "is_critical": true
       },
-      "actual_value": 0.55,
-      "passed": true,
-      "message": "answer_correctness: actual 0.5500 >= threshold 0.5000 -> PASSED"
+      "actual_value": 0.0,
+      "passed": false,
+      "message": "answer_correctness: actual 0.0000 >= threshold 0.5000 -> FAILED"
     },
     {
       "rule": {
@@ -37,9 +37,9 @@
         "description": "Minimum Context Precision",
         "is_critical": true
       },
-      "actual_value": 0.5,
-      "passed": true,
-      "message": "context_precision: actual 0.5000 >= threshold 0.5000 -> PASSED"
+      "actual_value": 0.3333,
+      "passed": false,
+      "message": "context_precision: actual 0.3333 >= threshold 0.5000 -> FAILED"
     },
     {
       "rule": {
@@ -49,9 +49,9 @@
         "description": "Minimum Composite Triad Quality",
         "is_critical": true
       },
-      "actual_value": 0.72,
-      "passed": true,
-      "message": "overall_quality: actual 0.7200 >= threshold 0.6500 -> PASSED"
+      "actual_value": 0.4667,
+      "passed": false,
+      "message": "overall_quality: actual 0.4667 >= threshold 0.6500 -> FAILED"
     },
     {
       "rule": {
@@ -61,12 +61,12 @@
         "description": "Minimum Benchmark Pass Rate (%)",
         "is_critical": true
       },
-      "actual_value": 50.0,
-      "passed": true,
-      "message": "pass_rate: actual 50.0000 >= threshold 50.0000 -> PASSED"
+      "actual_value": 0.0,
+      "passed": false,
+      "message": "pass_rate: actual 0.0000 >= threshold 50.0000 -> FAILED"
     }
   ],
   "regression_detected": false,
   "regression_delta": null,
-  "benchmark_dataset": "HR Policy Golden Evaluation Benchmark"
+  "benchmark_dataset": "hr_policy_benchmark (API Run)"
 }

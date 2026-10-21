@@ -21,6 +21,7 @@ class PipelineState:
     """Manages loaded document corpus and shared pipeline components."""
     def __init__(self) -> None:
         self.is_initialized = False
+        self.active_document_name = "hr_policy.pdf"
         self.cleaned_documents: List[CleanedDocument] = []
         self.indexed_chunks: list = []
         self.vector_store: Optional[BaseVectorStore] = None
@@ -43,6 +44,7 @@ class PipelineState:
             pages = loader.load_file(pdf_path)
             cleaner = TextCleaner()
             self.cleaned_documents = cleaner.clean_documents(pages)
+            self.active_document_name = "hr_policy.pdf"
         else:
             self.cleaned_documents = []
 
@@ -77,6 +79,61 @@ class PipelineState:
 
         self.tracker = ExperimentTracker(runs_dir="AeroqAI/data/runs")
         self.is_initialized = True
+
+    def ingest_pdf(self, file_path: Path, filename: str, clear_existing: bool = True) -> dict:
+        """
+        Ingests an arbitrary PDF document into the live AeroqAI pipeline:
+        extracts pages, cleans text, creates structured chunks, embeds dense vectors,
+        and updates the active vector store and debugger.
+        """
+        if not self.is_initialized:
+            self.initialize()
+
+        loader = PDFDocumentLoader(extract_empty_pages=False)
+        pages = loader.load_file(file_path)
+        if not pages:
+            raise ValueError(f"No readable text pages could be extracted from {filename}")
+
+        cleaner = TextCleaner()
+        cleaned_pages = cleaner.clean_documents(pages)
+
+        chunker = TextChunker(chunk_size=800, chunk_overlap=60, strategy="recursive")
+        chunks = chunker.chunk_documents(cleaned_pages)
+        if not chunks:
+            raise ValueError(f"Could not generate text chunks from {filename}")
+
+        embedded_chunks = self.embedder.embed_chunks(chunks)
+
+        if clear_existing:
+            self.vector_store = get_vector_store(store_type="memory")
+            self.cleaned_documents = cleaned_pages
+            self.indexed_chunks = chunks
+            self.active_document_name = filename
+        else:
+            self.cleaned_documents.extend(cleaned_pages)
+            self.indexed_chunks.extend(chunks)
+
+        self.vector_store.add_chunks(embedded_chunks)
+
+        # Refresh debugger to reference the newly populated vector store
+        self.debugger = RAGDebugger(
+            vector_store=self.vector_store,
+            embedder=self.embedder,
+            generator=self.generator,
+            reranker=self.reranker,
+            evaluator=self.evaluator
+        )
+
+        total_chars = sum(len(c.content) for c in chunks)
+        return {
+            "status": "success",
+            "document_name": filename,
+            "pages_loaded": len(cleaned_pages),
+            "chunks_indexed": len(chunks),
+            "total_characters": total_chars,
+            "vector_dimensions": len(embedded_chunks[0].embedding) if embedded_chunks else 384,
+            "sample_chunk": chunks[0].content[:250] if chunks else ""
+        }
 
 
 pipeline_state = PipelineState()

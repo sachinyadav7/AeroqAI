@@ -1,265 +1,90 @@
 {
-  "dataset_name": "HR Policy Golden Evaluation Benchmark",
-  "evaluator_model": "groq (openai/gpt-oss-120b)",
-  "total_samples": 10,
-  "passed_samples": 5,
-  "failed_samples": 5,
-  "pass_rate": 50.0,
+  "dataset_name": "hr_policy_benchmark (API Run)",
+  "evaluator_model": "deterministic (deterministic-heuristic-v1)",
+  "total_samples": 3,
+  "passed_samples": 0,
+  "failed_samples": 3,
+  "pass_rate": 0.0,
   "mean_faithfulness": 1.0,
-  "mean_correctness": 0.55,
-  "mean_context_precision": 0.5,
-  "mean_overall_score": 0.72,
-  "total_eval_latency_ms": 133667.77,
+  "mean_correctness": 0.0,
+  "mean_context_precision": 0.3333,
+  "mean_overall_score": 0.4667,
+  "total_eval_latency_ms": 2336.27,
   "sample_results": [
     {
       "sample_id": "eval_leave_01",
       "query": "How many days of paid annual leave do full-time employees receive, and what is the carry-over allowance?",
-      "generated_answer": "Full\u2011time employees receive **20 days of paid annual leave per calendar year**.  \nThe provided documents do not specify any carry\u2011over allowance for annual leave.",
+      "generated_answer": "I cannot find the answer in the provided documents.",
       "ground_truth_answer": "Standard full-time employees receive 20 days of paid annual leave per calendar year (25 days for senior staff with 5+ years tenure). Employees may carry over a maximum of 5 unused leave days into the following year.",
       "retrieved_contexts": [
-        "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year. - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year. 3.2 Sick & Personal Leave:",
-        "Employees receive 10 paid sick/personal days annually. Unused sick leave does not roll over to subsequent\ncalendar years. 3.3 Parental Leave: Primary caregivers are eligible for 16 weeks of fully paid parental leave\nfollowing the birth or adoption of a child. Secondary caregivers receive 6 weeks of paid leave."
+        "AeroqAI Technical Report: AI Safety Architecture & Guardrails\nSection 1: Constitutional AI Principles and Guardrail Enforcement\nThis technical specification details the safety constraints governing deployed generative models.\n1.1 Constitutional AI Principles require all reasoning nodes to adhere to deterministic output validation.\nAny generated response with a toxicity or bias score exceeding 0.05 is immediately intercepted.\nDeterministic validation filters guarantee a rejection rate strictly below 0.5% in production.\n1.2 Automated Red-Teaming: Continuous evaluation harnesses execute 5,000 synthetic adversarial prompts daily.\nAdversarial prompts target prompt extraction, role hijacking, and jailbreak vectors.",
+        "Section 2: Retrieval Latency SLAs and Cache Budgets\nProduction RAG architectures must meet rigorous latency and throughput budgets.\n2.1 Latency SLA: Dense vector similarity search must complete within 120ms at p95.\nCross-encoder reranking is allocated a strict 80ms processing budget per 10 candidate chunks.\n2.2 Memory Caching: High-frequency queries utilize an in-memory LRU cache capped at 4MB per worker.\nCache hit ratios above 42% reduce downstream LLM inference costs by an estimated 28.5%."
       ],
       "faithfulness": {
         "score": 1.0,
-        "reasoning": "All statements in the answer are supported by the reference: it correctly reports the 20\u2011day annual leave for standard full\u2011time staff and accurately notes that the context provides no carry\u2011over allowance information."
+        "reasoning": "Properly stated inability to find answer in context."
       },
       "answer_correctness": {
-        "score": 0.2,
-        "reasoning": "The answer correctly states the 20\u2011day entitlement for standard full\u2011time staff but omits the senior\u2011staff 25\u2011day provision and incorrectly claims no carry\u2011over allowance, contradicting the ground truth of a 5\u2011day carry\u2011over limit."
+        "score": 0.0,
+        "reasoning": "Recall: 0.0%, Jaccard: 0.0%, Matched 0/24 concepts."
       },
       "context_precision": {
-        "score": 0.5,
-        "reasoning": "The passage contains the exact leave numbers needed, but also includes unrelated sections on sick/personal and parental leave, making it only partially precise."
+        "score": 0.0,
+        "reasoning": "0/2 retrieved chunks contain keywords relevant to the query."
       },
-      "overall_score": 0.58,
+      "overall_score": 0.4,
       "passed": false,
-      "eval_latency_ms": 3739.44
+      "eval_latency_ms": 0.23
     },
     {
       "sample_id": "eval_hours_02",
       "query": "What are the core operating hours and expectations for synchronous availability?",
-      "generated_answer": "The core operating (or \u201ccore\u201d) hours are **10:00\u202fAM\u202f\u2013\u202f4:00\u202fPM Eastern Standard Time (EST)**. During this window, **all full\u2011time employees are expected to be available for synchronous communication** (e.g., meetings, instant messaging, calls).",
+      "generated_answer": "I cannot find the answer in the provided documents.",
       "ground_truth_answer": "Core operational hours are 10:00 AM to 4:00 PM EST. All full-time employees are expected to be available for synchronous communication during these core hours.",
       "retrieved_contexts": [
-        "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designed to balance operational efficiency and\nemployee wellness. 2.1 Core Hours: Core operational hours are 10:00 AM to 4:00 PM EST. All full-time\nemployees are expected to be available for synchronous communication during core hours. 2.2 Hybrid Remote",
-        "color, religion, sex, national origin, age, disability, or genetics. 1.2 Employment Classifications: - Full-Time\nEmployees: Regularly scheduled to work 40 hours per week. Eligible for full company benefit packages. -\nPart-Time Employees: Scheduled to work fewer than 30 hours per week. Benefits are prorated based on hours\nworked. - Contractors & Consultants: Independent personnel bound by specific service agreements; not eligible\nfor internal corporate benefits."
+        "Section 2: Retrieval Latency SLAs and Cache Budgets\nProduction RAG architectures must meet rigorous latency and throughput budgets.\n2.1 Latency SLA: Dense vector similarity search must complete within 120ms at p95.\nCross-encoder reranking is allocated a strict 80ms processing budget per 10 candidate chunks.\n2.2 Memory Caching: High-frequency queries utilize an in-memory LRU cache capped at 4MB per worker.\nCache hit ratios above 42% reduce downstream LLM inference costs by an estimated 28.5%.",
+        "AeroqAI Technical Report: AI Safety Architecture & Guardrails\nSection 1: Constitutional AI Principles and Guardrail Enforcement\nThis technical specification details the safety constraints governing deployed generative models.\n1.1 Constitutional AI Principles require all reasoning nodes to adhere to deterministic output validation.\nAny generated response with a toxicity or bias score exceeding 0.05 is immediately intercepted.\nDeterministic validation filters guarantee a rejection rate strictly below 0.5% in production.\n1.2 Automated Red-Teaming: Continuous evaluation harnesses execute 5,000 synthetic adversarial prompts daily.\nAdversarial prompts target prompt extraction, role hijacking, and jailbreak vectors."
       ],
       "faithfulness": {
         "score": 1.0,
-        "reasoning": "The answer exactly mirrors the reference: it states the core hours (10:00\u202fAM\u20134:00\u202fPM EST) and that all full\u2011time employees must be synchronously available, which are both directly supported by the context with no contradictions or extra claims."
+        "reasoning": "Properly stated inability to find answer in context."
       },
       "answer_correctness": {
-        "score": 1.0,
-        "reasoning": "The generated answer fully matches the ground truth, stating the same core hours (10:00\u202fAM\u20134:00\u202fPM EST) and the expectation that all full\u2011time employees be available for synchronous communication, with no factual errors or omissions."
+        "score": 0.0,
+        "reasoning": "Recall: 0.0%, Jaccard: 0.0%, Matched 0/18 concepts."
       },
       "context_precision": {
-        "score": 0.5,
-        "reasoning": "The passage contains the exact core hours and availability expectations, but also includes unrelated employment classification details, making it only partially precise."
+        "score": 0.0,
+        "reasoning": "0/2 retrieved chunks contain keywords relevant to the query."
       },
-      "overall_score": 0.9,
-      "passed": true,
-      "eval_latency_ms": 3053.31
+      "overall_score": 0.4,
+      "passed": false,
+      "eval_latency_ms": 0.22
     },
     {
       "sample_id": "eval_remote_03",
       "query": "What is the hybrid remote work model and office attendance requirement?",
-      "generated_answer": "The hybrid remote work model at Global Tech\u202fInc. allows employees to split their time between an approved office location and a verified remote workspace.  \n\n**Office attendance requirement**  \n- Employees may work remotely **up to\u202f3\u202fdays per week** (with prior manager approval).  \n- Consequently, they must be present in an approved office location for the remaining days of the workweek (at least\u202f2\u202fdays).  \n\n**Additional conditions**  \n- Remote work must be performed from a secure, verified home workspace with a minimum high\u2011speed internet connection of **50\u202fMbps download**.  \n- All full\u2011time employees must be available for synchronous communication during the **core hours of 10:00\u202fAM\u202f\u2013\u202f4:00\u202fPM\u202fEST**.",
+      "generated_answer": "I cannot find the answer in the provided documents.",
       "ground_truth_answer": "Global Tech operates on a flexible hybrid work model where employees work 3 days in the office and 2 days remotely per week, coordinated within their respective departments.",
       "retrieved_contexts": [
-        "Working Hours & Hybrid Remote Policy\nSection 2: Work Schedules & Flexible Operations\nGlobal Tech Inc. operates on a flexible hybrid work model designed to balance operational efficiency and\nemployee wellness. 2.1 Core Hours: Core operational hours are 10:00 AM to 4:00 PM EST. All full-time\nemployees are expected to be available for synchronous communication during core hours. 2.2 Hybrid Remote",
-        "Work Guidelines: - Employees may work remotely up to 3 days per week with prior manager approval. - Team\nmembers must work from an approved office location or verified home workspace with secure internet. -\nHigh-speed internet (minimum 50 Mbps download speed) is mandatory for remote workers."
+        "AeroqAI Technical Report: AI Safety Architecture & Guardrails\nSection 1: Constitutional AI Principles and Guardrail Enforcement\nThis technical specification details the safety constraints governing deployed generative models.\n1.1 Constitutional AI Principles require all reasoning nodes to adhere to deterministic output validation.\nAny generated response with a toxicity or bias score exceeding 0.05 is immediately intercepted.\nDeterministic validation filters guarantee a rejection rate strictly below 0.5% in production.\n1.2 Automated Red-Teaming: Continuous evaluation harnesses execute 5,000 synthetic adversarial prompts daily.\nAdversarial prompts target prompt extraction, role hijacking, and jailbreak vectors.",
+        "Section 3: Prompt Injection Defense and Data Isolation\nUntrusted external context represents the primary attack vector against enterprise RAG pipelines.\n3.1 Dual-Layer Perplexity Filtering: Input passages undergo perplexity analysis before vector storage.\nAnomalous tokens exceeding standard English distribution by 3.8 standard deviations are sanitized.\n3.2 Context Isolation: Retrieved chunks are strictly encapsulated in immutable XML delimiters.\nThis delimiter structure prevents prompt breakout and instruction override in downstream models."
       ],
       "faithfulness": {
         "score": 1.0,
-        "reasoning": "All statements in the answer are directly supported or logically entailed by the reference context, with no contradictory or fabricated claims."
+        "reasoning": "Properly stated inability to find answer in context."
       },
       "answer_correctness": {
         "score": 0.0,
-        "reasoning": "The generated answer states employees can work remotely up to 3 days and must be in the office at least 2 days, which directly contradicts the ground truth that specifies 3 office days and 2 remote days. Core facts are incorrect, so the answer fails correctness."
+        "reasoning": "Recall: 0.0%, Jaccard: 0.0%, Matched 0/21 concepts."
       },
       "context_precision": {
-        "score": 0.5,
-        "reasoning": "Passages mention a hybrid remote model and remote\u2011work limits, but they lack the exact office attendance detail (3 days in office) and include unrelated details like core hours and internet requirements, making them only partially relevant."
+        "score": 1.0,
+        "reasoning": "2/2 retrieved chunks contain keywords relevant to the query."
       },
-      "overall_score": 0.5,
+      "overall_score": 0.6,
       "passed": false,
-      "eval_latency_ms": 4074.77
-    },
-    {
-      "sample_id": "eval_health_04",
-      "query": "What are the subsidy rates for the Preferred Provider Organization (PPO) health insurance plan?",
-      "generated_answer": "The Preferred Provider Organization (PPO) health insurance plan is subsidized at **90\u202f% for the employee** and **70\u202f% for dependents**.",
-      "ground_truth_answer": "The company subsidizes 90% of the premium for employees and 70% for their eligible dependents under the Preferred Provider Organization (PPO) plan.",
-      "retrieved_contexts": [
-        "Health Insurance & Medical Benefits\nSection 4: Comprehensive Healthcare Coverage\nGlobal Tech Inc. offers premium medical, dental, and vision insurance coverage to all full-time team members\nstarting on their first day of employment. 4.1 Health Insurance Plans: - Preferred Provider Organization (PPO):\n90% company subsidized for employee, 70% for dependents. - High Deductible Health Plan (HDHP) with HSA:",
-        "100% company subsidized for employee with $1,500 annual HSA contribution. 4.2 Dental & Vision: Full\npreventive dental cleanings twice per year and annual eye exams covered at 100% under standard company\nplans."
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer precisely restates the subsidy rates for the PPO plan as 90% for the employee and 70% for dependents, which directly matches the reference context without adding or altering information."
-      },
-      "answer_correctness": {
-        "score": 1.0,
-        "reasoning": "The generated answer includes both subsidy rates (90% for employee, 70% for dependents) exactly as stated in the ground truth, with no factual errors or omissions."
-      },
-      "context_precision": {
-        "score": 1.0,
-        "reasoning": "The passage directly states the PPO subsidy rates (90% employee, 70% dependents) with no irrelevant content, fully meeting the query."
-      },
-      "overall_score": 1.0,
-      "passed": true,
-      "eval_latency_ms": 12328.96
-    },
-    {
-      "sample_id": "eval_retirement_05",
-      "query": "What is the 401(k) retirement matching policy?",
-      "generated_answer": "I cannot find the answer in the provided documents.",
-      "ground_truth_answer": "The company provides a 100% dollar-for-dollar match on employee 401(k) contributions up to 4% of eligible base salary, with immediate vesting.",
-      "retrieved_contexts": [
-        "every 90 days. Multi-Factor Authentication (MFA) is compulsory across all corporate accounts and developer\ntools.",
-        "100% company subsidized for employee with $1,500 annual HSA contribution. 4.2 Dental & Vision: Full\npreventive dental cleanings twice per year and annual eye exams covered at 100% under standard company\nplans."
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer correctly states that the information is not found in the provided context, which indeed lacks any mention of a 401(k) matching policy, making it fully faithful."
-      },
-      "answer_correctness": {
-        "score": 0.0,
-        "reasoning": "The generated answer states the information is unavailable, whereas the ground truth provides a specific matching policy; thus it omits all core facts and is incorrect."
-      },
-      "context_precision": {
-        "score": 0.0,
-        "reasoning": "The passages discuss multi-factor authentication and health benefits, none of which mention 401(k) matching policy, making them completely irrelevant to the question."
-      },
-      "overall_score": 0.4,
-      "passed": false,
-      "eval_latency_ms": 9352.03
-    },
-    {
-      "sample_id": "eval_offboarding_06",
-      "query": "What is the timeframe and procedure for returning company equipment when leaving the company?",
-      "generated_answer": "The policy states that all company assets\u2014including laptops, security keycards, monitors, and any proprietary materials\u2014must be returned **within\u202f5 business days of the employee\u2019s final active work date**. This return is part of the off\u2011boarding procedure outlined in Section\u202f10.2 of the HR policy.",
-      "ground_truth_answer": "All laptops, security keycards, monitors, and proprietary materials must be returned within 5 business days of the final active work date.",
-      "retrieved_contexts": [
-        "Separation, Resignation & Severance\nGuidelines\nSection 10: Offboarding Procedures & Termination Notice\nFair and transparent procedures govern employment conclusion at Global Tech Inc. 10.1 Notice Period:\nEmployees initiating resignation must provide at least 2 weeks (14 days) written notice to their direct supervisor\nand HR representative. 10.2 Return of Company Assets: All laptops, security keycards, monitors, and",
-        "proprietary materials must be returned within 5 business days of the final active work date. 10.3 Severance\nEligibility: Eligible staff separated due to redundancy or corporate restructuring receive 2 weeks severance pay\nper completed year of service, up to a maximum of 26 weeks."
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "All statements in the answer (return within 5 business days, assets listed, reference to Section\u202f10.2) are directly supported by the reference context; no unsupported or contradictory information is present."
-      },
-      "answer_correctness": {
-        "score": 1.0,
-        "reasoning": "The generated answer includes all core facts\u2014list of equipment and the 5\u2011business\u2011day return window\u2014matching the ground truth, and adds only non\u2011contradictory extra detail."
-      },
-      "context_precision": {
-        "score": 1.0,
-        "reasoning": "The passage includes the exact timeframe and procedure for returning equipment, matching the ground truth, with only minimal unrelated offboarding details."
-      },
-      "overall_score": 1.0,
-      "passed": true,
-      "eval_latency_ms": 15828.36
-    },
-    {
-      "sample_id": "eval_parental_07",
-      "query": "What is the parental leave entitlement for primary caregivers?",
-      "generated_answer": "Primary caregivers are entitled to **16 weeks of fully paid parental leave** following the birth or adoption of a child.",
-      "ground_truth_answer": "Primary caregivers are eligible for 16 weeks of fully paid parental leave following the birth or adoption of a child.",
-      "retrieved_contexts": [
-        "Employees receive 10 paid sick/personal days annually. Unused sick leave does not roll over to subsequent\ncalendar years. 3.3 Parental Leave: Primary caregivers are eligible for 16 weeks of fully paid parental leave\nfollowing the birth or adoption of a child. Secondary caregivers receive 6 weeks of paid leave.",
-        "Paid Time Off (PTO) & Leave Rules\nSection 3: Annual Leave, Sick Days & Holidays\nWe believe rest and recovery are critical for sustained productivity and personal health. 3.1 Annual Leave\nAllowance: - Standard full-time employees receive 20 days of paid annual leave per calendar year. - Senior\nstaff (5+ years tenure) receive 25 days of paid annual leave per calendar year. 3.2 Sick & Personal Leave:"
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer exactly matches the reference context, stating the 16 weeks of fully paid parental leave for primary caregivers, with no unsupported or contradictory information."
-      },
-      "answer_correctness": {
-        "score": 1.0,
-        "reasoning": "The generated answer exactly matches the ground truth, capturing the entitlement of 16 weeks of fully paid parental leave for primary caregivers after birth or adoption."
-      },
-      "context_precision": {
-        "score": 0.5,
-        "reasoning": "One passage includes the exact entitlement but is mixed with unrelated sick\u2011leave text, and the second passage is unrelated, so relevance is partial with notable filler."
-      },
-      "overall_score": 0.9,
-      "passed": true,
-      "eval_latency_ms": 12133.39
-    },
-    {
-      "sample_id": "eval_learning_08",
-      "query": "What is the annual stipend for professional development and learning?",
-      "generated_answer": "The annual stipend for professional development and learning is **$2,500 per full\u2011time employee**.",
-      "ground_truth_answer": "Employees receive an annual stipend of $2,000 for conferences, professional certifications, books, and educational courses approved by their manager.",
-      "retrieved_contexts": [
-        "Learning & Development Stipends\nSection 8: Professional Growth & Tuition Reimbursement\nGlobal Tech Inc. invests in continuous skill enhancement and education for all staff members. 8.1 Annual\nLearning Stipend: Every full-time employee is allocated a $2,500 annual budget for attending technical\nconferences, purchasing books, or enrolling in certified online courses. 8.2 Tuition Assistance Program: Up to",
-        "Stipend: A one-time $1,000 net stipend is provided to newly hired remote employees for ergonomic desk, chair,\nor lighting purchases. 5.3 Monthly Internet & Connectivity Allowance: A monthly stipend of $75 is credited\ndirectly to payroll to offset home high-speed broadband expenses."
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer correctly states the $2,500 annual learning stipend for full-time employees, which is directly supported by the reference context; no unsupported or contradictory information is present."
-      },
-      "answer_correctness": {
-        "score": 0.0,
-        "reasoning": "The generated answer states a $2,500 stipend, which contradicts the ground truth $2,000 amount and omits the manager\u2011approval condition, making it factually incorrect."
-      },
-      "context_precision": {
-        "score": 0.5,
-        "reasoning": "One passage is relevant to learning stipends but gives the wrong amount ($2,500 vs $2,000); the other passage is unrelated, so overall relevance is partial with notable filler."
-      },
-      "overall_score": 0.5,
-      "passed": false,
-      "eval_latency_ms": 14342.49
-    },
-    {
-      "sample_id": "eval_it_09",
-      "query": "How often must corporate passwords be changed and what are the complexity rules?",
-      "generated_answer": "Corporate passwords must be changed **every\u202f90\u202fdays**. The provided documents do not specify any password\u2011complexity requirements, so I cannot find the answer to that part in the given material.",
-      "ground_truth_answer": "Passwords must be changed every 90 days and must contain at least 14 characters, including uppercase, lowercase, numbers, and symbols.",
-      "retrieved_contexts": [
-        "every 90 days. Multi-Factor Authentication (MFA) is compulsory across all corporate accounts and developer\ntools.",
-        "Data Security & Confidentiality\nSection 9: Information Security & Non-Disclosure\nProtecting corporate assets, proprietary algorithms, and customer privacy is paramount. 9.1 Non-Disclosure\nObligations: All proprietary code, AI model weights, internal customer metrics, and evaluation datasets created\nduring employment belong exclusively to Global Tech Inc. 9.2 Security Hygiene: Passwords must be updated"
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer correctly states the 90\u2011day password change interval, which is directly supported by the context, and accurately notes that the context provides no password\u2011complexity rules, matching the source information."
-      },
-      "answer_correctness": {
-        "score": 0.3,
-        "reasoning": "The answer correctly states the 90\u2011day change interval, but completely omits the essential complexity requirements (minimum 14 characters with mixed case, numbers, symbols), a core component of the ground truth."
-      },
-      "context_precision": {
-        "score": 0.5,
-        "reasoning": "Passages include the 90\u2011day change interval but omit the complexity requirements and contain unrelated filler, making them only partially relevant."
-      },
-      "overall_score": 0.62,
-      "passed": false,
-      "eval_latency_ms": 13958.21
-    },
-    {
-      "sample_id": "eval_hallucination_10",
-      "query": "What is the policy for personal spaceships and interstellar travel reimbursement?",
-      "generated_answer": "I cannot find the answer in the provided documents.",
-      "ground_truth_answer": "I cannot find the answer in the provided documents.",
-      "retrieved_contexts": [
-        "Learning & Development Stipends\nSection 8: Professional Growth & Tuition Reimbursement\nGlobal Tech Inc. invests in continuous skill enhancement and education for all staff members. 8.1 Annual\nLearning Stipend: Every full-time employee is allocated a $2,500 annual budget for attending technical\nconferences, purchasing books, or enrolling in certified online courses. 8.2 Tuition Assistance Program: Up to",
-        "Health Insurance & Medical Benefits\nSection 4: Comprehensive Healthcare Coverage\nGlobal Tech Inc. offers premium medical, dental, and vision insurance coverage to all full-time team members\nstarting on their first day of employment. 4.1 Health Insurance Plans: - Preferred Provider Organization (PPO):\n90% company subsidized for employee, 70% for dependents. - High Deductible Health Plan (HDHP) with HSA:"
-      ],
-      "faithfulness": {
-        "score": 1.0,
-        "reasoning": "The answer correctly states that the provided documents do not contain information about personal spaceships and interstellar travel reimbursement, which aligns with the reference context."
-      },
-      "answer_correctness": {
-        "score": 1.0,
-        "reasoning": "Both answers state that the answer cannot be found in the documents, matching the ground truth exactly."
-      },
-      "context_precision": {
-        "score": 0.0,
-        "reasoning": "The retrieved passages discuss learning stipends and health insurance, which have no relation to personal spaceships or interstellar travel reimbursement, making them completely irrelevant to the query."
-      },
-      "overall_score": 0.8,
-      "passed": true,
-      "eval_latency_ms": 11608.81
+      "eval_latency_ms": 0.21
     }
   ]
 }
