@@ -9,6 +9,12 @@ export async function fetchHealth() {
   return res.json();
 }
 
+export async function fetchCorpus() {
+  const res = await fetch(`${API_BASE}/api/system/corpus`);
+  if (!res.ok) throw new Error("Failed to fetch corpus");
+  return res.json();
+}
+
 export async function executeQuery(query, topK = 4, useReranker = true, rerankerTopK = 2) {
   const res = await fetch(`${API_BASE}/api/rag/query`, {
     method: "POST",

@@ -1,4 +1,5 @@
 """System health, metadata, and status routes."""
+from pathlib import Path
 from fastapi import APIRouter
 from AeroqAI.api.state import pipeline_state
 
@@ -24,4 +25,34 @@ def get_health():
             "pages_loaded": len(pipeline_state.cleaned_documents),
             "vector_chunks_indexed": vector_count
         }
+    }
+
+
+@router.get("/corpus")
+def get_corpus():
+    """Return detailed document pages and indexed chunks for knowledge base inspection."""
+    docs = [
+        {
+            "page_number": getattr(getattr(d, "metadata", None), "page_number", idx + 1),
+            "source_file": Path(getattr(getattr(d, "metadata", None), "source_file", "hr_policy.pdf")).name,
+            "char_count": len(getattr(d, "content", "")),
+            "preview": getattr(d, "content", "")[:300] + ("..." if len(getattr(d, "content", "")) > 300 else "")
+        }
+        for idx, d in enumerate(pipeline_state.cleaned_documents)
+    ]
+    chunks = [
+        {
+            "chunk_id": getattr(c, "chunk_id", f"chk_{i+1:03d}"),
+            "page_number": getattr(getattr(c, "metadata", None), "page_number", 1),
+            "char_count": len(getattr(c, "content", "")),
+            "preview": getattr(c, "content", "")[:250] + ("..." if len(getattr(c, "content", "")) > 250 else "")
+        }
+        for i, c in enumerate(getattr(pipeline_state, "indexed_chunks", []))
+    ]
+    return {
+        "document_name": "hr_policy.pdf",
+        "total_pages": len(docs),
+        "total_chunks": len(chunks),
+        "documents": docs,
+        "chunks": chunks
     }

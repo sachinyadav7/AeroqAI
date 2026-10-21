@@ -1,20 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import DashboardView from './views/DashboardView';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import OverviewView from './views/OverviewView';
+import WorkflowStudioView from './views/WorkflowStudioView';
 import DebuggerView from './views/DebuggerView';
 import EvaluationView from './views/EvaluationView';
 import OptimizerView from './views/OptimizerView';
 import LeaderboardView from './views/LeaderboardView';
+import QualityDiffView from './views/QualityDiffView';
 import QualityGateView from './views/QualityGateView';
+import DatasetsView from './views/DatasetsView';
+import SettingsView from './views/SettingsView';
 import { fetchHealth } from './apiClient';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('aeroqai_theme') || 'dark';
+  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [systemStatus, setSystemStatus] = useState(null);
 
+  // Synchronize theme with data-theme attribute on root html element
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aeroqai_theme', theme);
+  }, [theme]);
+
+  // Poll system health
   useEffect(() => {
     checkHealth();
-    const interval = setInterval(checkHealth, 10000);
+    const interval = setInterval(checkHealth, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -27,59 +43,97 @@ export default function App() {
     }
   };
 
+  const handlePrimaryAction = (tab) => {
+    if (tab === 'overview' || tab === 'evaluation') {
+      setActiveTab('evaluation');
+    } else if (tab === 'workflow' || tab === 'debugger') {
+      setActiveTab('debugger');
+    } else if (tab === 'optimizer') {
+      setActiveTab('optimizer');
+    } else if (tab === 'experiments' || tab === 'diff') {
+      setActiveTab('diff');
+    } else if (tab === 'quality-gate' || tab === 'release-center') {
+      setActiveTab('quality-gate');
+    } else {
+      checkHealth();
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Navigation */}
-      <Navbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        systemStatus={systemStatus} 
+    <div className="app-shell">
+      {/* Persistent Left Sidebar Navigation */}
+      <Sidebar 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        systemStatus={systemStatus}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
       />
 
-      {/* Main Content Area */}
-      <main style={{
-        flex: 1,
-        maxWidth: '1440px',
-        width: '100%',
-        margin: '0 auto',
-        padding: '2.5rem 2rem'
-      }}>
-        {activeTab === 'dashboard' && (
-          <DashboardView systemStatus={systemStatus} setActiveTab={setActiveTab} />
-        )}
-        {activeTab === 'debugger' && <DebuggerView />}
-        {activeTab === 'evaluation' && <EvaluationView />}
-        {activeTab === 'optimizer' && <OptimizerView />}
-        {activeTab === 'leaderboard' && <LeaderboardView />}
-        {activeTab === 'quality-gate' && <QualityGateView />}
-      </main>
+      {/* Main App Container */}
+      <div className="main-container">
+        {/* Top Navigation Bar */}
+        <Topbar 
+          activeTab={activeTab}
+          theme={theme}
+          setTheme={setTheme}
+          systemStatus={systemStatus}
+          onPrimaryAction={handlePrimaryAction}
+        />
 
-      {/* Footer */}
-      <footer style={{
-        borderTop: '1px solid var(--border-subtle)',
-        background: 'rgba(8, 12, 20, 0.95)',
-        padding: '2rem',
-        marginTop: 'auto'
-      }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          fontSize: '0.85rem',
-          color: 'var(--text-muted)'
-        }}>
-          <div>
-            <strong style={{ color: 'var(--text-secondary)' }}>AeroqAI</strong> — Enterprise AI Application Evaluation, RAG Optimization & Quality Assurance Platform
-          </div>
-          <div>
-            B.Tech Major Project • Shri Ramdeobaba College of Engineering & Management
-          </div>
-        </div>
-      </footer>
+        {/* Dynamic View Body */}
+        <main className="content-body">
+          {activeTab === 'overview' && (
+            <OverviewView 
+              systemStatus={systemStatus} 
+              setActiveTab={setActiveTab} 
+              theme={theme}
+            />
+          )}
+
+          {activeTab === 'workflow' && (
+            <WorkflowStudioView 
+              setActiveTab={setActiveTab} 
+            />
+          )}
+
+          {activeTab === 'debugger' && (
+            <DebuggerView />
+          )}
+
+          {activeTab === 'evaluation' && (
+            <EvaluationView />
+          )}
+
+          {activeTab === 'optimizer' && (
+            <OptimizerView />
+          )}
+
+          {activeTab === 'experiments' && (
+            <LeaderboardView 
+              setActiveTab={setActiveTab} 
+            />
+          )}
+
+          {activeTab === 'diff' && (
+            <QualityDiffView />
+          )}
+
+          {(activeTab === 'quality-gate' || activeTab === 'release-center') && (
+            <QualityGateView />
+          )}
+
+          {activeTab === 'datasets' && (
+            <DatasetsView />
+          )}
+
+          {activeTab === 'settings' && (
+            <SettingsView 
+              systemStatus={systemStatus} 
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

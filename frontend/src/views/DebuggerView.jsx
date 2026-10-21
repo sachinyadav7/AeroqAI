@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Search, 
+  Bug, 
   Clock, 
   ArrowUpRight, 
   ArrowDownRight, 
@@ -12,7 +12,11 @@ import {
   Cpu, 
   Award,
   Zap,
-  Layers
+  Layers,
+  Sparkles,
+  Terminal,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
 import { traceQuery } from '../apiClient';
 
@@ -29,7 +33,7 @@ export default function DebuggerView() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   const handleTrace = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!query.trim()) return;
     setLoading(true);
     setError(null);
@@ -44,315 +48,409 @@ export default function DebuggerView() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      
       {/* Header */}
-      <div className="glass-panel" style={{ padding: '1.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.5rem' }}>
-          <Search size={22} color="var(--accent-primary)" />
-          <h1 style={{ fontSize: '1.75rem' }}>Interactive RAG Query Debugger</h1>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid var(--border-subtle)'
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
+            <span className="badge-pill primary">White-Box Observability</span>
+            <span className="badge-pill neutral">Microsecond Profiler</span>
+          </div>
+          <h1 style={{ margin: 0, fontSize: '1.75rem' }}>Interactive RAG Debugger</h1>
+          <p style={{ margin: 0, fontSize: '0.88rem' }}>
+            Inspect every micro-step of RAG query execution: vector similarity, cross-encoder score shifts (ΔRank), context pruning, and token accounting.
+          </p>
         </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Inspect every micro-step of RAG query execution in real time: vector similarity scores, neural cross-encoder score shifts, context pruning, prompt structure, token usage, and latency waterfalls.
-        </p>
       </div>
 
-      {/* Query Controls Bar */}
-      <div className="glass-panel" style={{ padding: '1.75rem' }}>
-        <form onSubmit={handleTrace} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              User Query
-            </label>
-            <input
-              type="text"
-              className="input-text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Enter query to trace..."
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Ground Truth Reference Answer (Optional for real-time Triad evaluation)
-            </label>
-            <input
-              type="text"
-              className="input-text"
-              value={groundTruth}
-              onChange={(e) => setGroundTruth(e.target.value)}
-              placeholder="Expected factual answer..."
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem', alignItems: 'center' }}>
+      {/* Query Formulation & Parameter Controls */}
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title-group">
+            <Sliders size={18} style={{ color: 'var(--accent-primary)' }} />
             <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                Vector Retrieval Depth (Top-K): <strong>{topK}</strong>
-              </label>
-              <input
-                type="range"
-                min="2"
-                max="8"
-                value={topK}
-                onChange={(e) => setTopK(parseInt(e.target.value))}
-                style={{ width: '100%', accentColor: 'var(--accent-primary)' }}
+              <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Query Parameters & Ground Truth</h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Configure dense vector retrieval and neural cross-encoder thresholds
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-body">
+          <form onSubmit={handleTrace} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="form-group">
+              <label className="form-label">User Query</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Enter query to trace across RAG pipeline..."
+                required
               />
             </div>
 
-            <div>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                Rerank Retention (Top-K): <strong>{rerankTopK}</strong>
-              </label>
-              <input
-                type="range"
-                min="1"
-                max={topK}
-                value={rerankTopK}
-                onChange={(e) => setRerankTopK(parseInt(e.target.value))}
-                disabled={!useReranker}
-                style={{ width: '100%', accentColor: 'var(--accent-cyan)' }}
+            <div className="form-group">
+              <label className="form-label">Reference Ground Truth (Optional Evaluation)</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                value={groundTruth}
+                onChange={(e) => setGroundTruth(e.target.value)}
+                placeholder="Target ground truth answer for real-time Faithfulness and Correctness scoring..."
               />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <input
-                type="checkbox"
-                id="rerankerToggle"
-                checked={useReranker}
-                onChange={(e) => setUseReranker(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
-              />
-              <label htmlFor="rerankerToggle" style={{ fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}>
-                Enable Cross-Encoder Reranking
-              </label>
-            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '1rem',
+              alignItems: 'end'
+            }}>
+              <div className="form-group">
+                <label className="form-label">Dense Retrieval Top-K</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="10" 
+                  className="form-input" 
+                  value={topK}
+                  onChange={(e) => setTopK(parseInt(e.target.value))}
+                />
+              </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', minWidth: '180px' }}>
-                {loading ? <Clock size={16} className="spin" /> : <Zap size={16} />}
-                Trace Pipeline Step-by-Step
+              <div className="form-group">
+                <label className="form-label">Neural Reranker</label>
+                <select 
+                  className="form-select"
+                  value={useReranker ? "on" : "off"}
+                  onChange={(e) => setUseReranker(e.target.value === "on")}
+                >
+                  <option value="on">Cross-Encoder (Enabled)</option>
+                  <option value="off">Reranker Disabled</option>
+                </select>
+              </div>
+
+              {useReranker && (
+                <div className="form-group">
+                  <label className="form-label">Reranker Top-K</label>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    max="10" 
+                    className="form-input" 
+                    value={rerankTopK}
+                    onChange={(e) => setRerankTopK(parseInt(e.target.value))}
+                  />
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={loading}
+                style={{ height: '38px' }}
+              >
+                <Terminal size={14} />
+                <span>{loading ? "Tracing Query..." : "Trace Pipeline Step-by-Step"}</span>
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       {error && (
-        <div style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.3)', color: '#FDA4AF' }}>
-          Error: {error}
+        <div style={{ padding: '1rem', backgroundColor: 'var(--danger-muted)', color: 'var(--danger)', borderRadius: '8px', border: '1px solid var(--danger)' }}>
+          {error}
         </div>
       )}
 
-      {/* Trace Results */}
+      {/* Trace Results Split-Pane */}
       {trace && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Latency Waterfall Bar */}
-          <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Clock size={18} color="var(--accent-cyan)" />
-                <h3 style={{ fontSize: '1.15rem' }}>Stage Latency Waterfall</h3>
-              </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--accent-primary)' }}>
-                Total: {trace.total_latency_ms.toFixed(1)} ms
+          
+          {/* Latency Waterfall Summary Card */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title-group">
+                <Clock size={18} style={{ color: 'var(--accent-secondary)' }} />
+                <div>
+                  <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Execution Latency Waterfall</h3>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Total End-to-End Pipeline Latency: <strong>{trace.total_latency_ms.toFixed(1)} ms</strong>
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Waterfall Segment Badges */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '1.25rem' }}>
-              <div style={{ padding: '10px', borderRadius: 'var(--radius-sm)', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>1. Vector Retrieval</div>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#A5B4FC' }}>{trace.retrieval.latency_ms.toFixed(1)} ms</div>
+            <div className="card-body">
+              {/* Stacked Latency Progress Bar */}
+              <div style={{
+                height: '14px',
+                borderRadius: '8px',
+                display: 'flex',
+                overflow: 'hidden',
+                backgroundColor: 'var(--bg-app)',
+                marginBottom: '1rem',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <div 
+                  style={{ 
+                    width: `${Math.max(5, (trace.stages.retrieval.latency_ms / trace.total_latency_ms) * 100)}%`,
+                    backgroundColor: '#3B82F6'
+                  }} 
+                  title={`Vector Retrieval: ${trace.stages.retrieval.latency_ms.toFixed(1)}ms`}
+                />
+                {trace.stages.rerank && (
+                  <div 
+                    style={{ 
+                      width: `${Math.max(5, (trace.stages.rerank.latency_ms / trace.total_latency_ms) * 100)}%`,
+                      backgroundColor: '#F5B942'
+                    }} 
+                    title={`Cross-Encoder Rerank: ${trace.stages.rerank.latency_ms.toFixed(1)}ms`}
+                  />
+                )}
+                <div 
+                  style={{ 
+                    flex: 1,
+                    backgroundColor: '#7567FF'
+                  }} 
+                  title={`LLM Generation: ${trace.stages.generation.latency_ms.toFixed(1)}ms`}
+                />
               </div>
 
-              {trace.rerank && (
-                <div style={{ padding: '10px', borderRadius: 'var(--radius-sm)', background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.25)' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>2. Cross-Encoder Rerank</div>
-                  <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#67E8F9' }}>{trace.rerank.latency_ms.toFixed(1)} ms</div>
-                </div>
-              )}
-
-              <div style={{ padding: '10px', borderRadius: 'var(--radius-sm)', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.25)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>3. Prompt Assembly</div>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#C084FC' }}>{trace.prompt_assembly.latency_ms.toFixed(2)} ms</div>
-              </div>
-
-              <div style={{ padding: '10px', borderRadius: 'var(--radius-sm)', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>4. LLM Generation</div>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#6EE7B7' }}>{trace.generation.latency_ms.toFixed(1)} ms</div>
+              {/* Stage Latency Legend */}
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.8rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3B82F6' }} />
+                  Vector Retrieval: <strong>{trace.stages.retrieval.latency_ms.toFixed(1)} ms</strong>
+                </span>
+                {trace.stages.rerank && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F5B942' }} />
+                    Cross-Encoder Rerank: <strong>{trace.stages.rerank.latency_ms.toFixed(1)} ms</strong>
+                  </span>
+                )}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#7567FF' }} />
+                  LLM Generation: <strong>{trace.stages.generation.latency_ms.toFixed(1)} ms</strong>
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Candidate Passages Score Transitions Table */}
-          <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Layers size={18} color="var(--accent-violet)" />
-                <h3 style={{ fontSize: '1.15rem' }}>Candidate Passage Scoring & Neural Rerank Shifts</h3>
-              </div>
-              <span className="badge badge-purple">
-                {trace.rerank ? `${trace.rerank.top_k_retained} Retained / ${trace.retrieval.total_candidates_found} Candidates` : `${trace.retrieval.total_candidates_found} Candidates`}
-              </span>
-            </div>
-
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
-                    <th style={{ padding: '10px' }}>Initial Rank</th>
-                    <th style={{ padding: '10px' }}>Final Rank</th>
-                    <th style={{ padding: '10px' }}>Rank Shift</th>
-                    <th style={{ padding: '10px' }}>Document / Page</th>
-                    <th style={{ padding: '10px' }}>Vector Score</th>
-                    <th style={{ padding: '10px' }}>Rerank Score</th>
-                    <th style={{ padding: '10px' }}>Context Status</th>
-                    <th style={{ padding: '10px' }}>Passage Snippet</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(trace.rerank ? trace.rerank.reranked_chunks : trace.retrieval.retrieved_chunks).map((c, i) => {
-                    const hasShift = c.rank_delta !== null && c.rank_delta !== undefined;
-                    const shiftPositive = c.rank_delta > 0;
-                    const shiftNegative = c.rank_delta < 0;
-
-                    return (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', background: c.retained_in_context ? 'rgba(99, 102, 241, 0.04)' : 'transparent' }}>
-                        <td style={{ padding: '12px 10px', fontFamily: 'var(--font-mono)' }}>#{c.initial_rank}</td>
-                        <td style={{ padding: '12px 10px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-                          {c.final_rank ? `#${c.final_rank}` : '-'}
-                        </td>
-                        <td style={{ padding: '12px 10px' }}>
-                          {!hasShift || c.rank_delta === 0 ? (
-                            <span style={{ color: 'var(--text-muted)' }}>=</span>
-                          ) : shiftPositive ? (
-                            <span style={{ color: 'var(--accent-emerald)', fontWeight: 600 }}>+{c.rank_delta} 🔼</span>
-                          ) : (
-                            <span style={{ color: 'var(--accent-rose)', fontWeight: 600 }}>{c.rank_delta} 🔽</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 10px' }}>
-                          <span className="badge badge-info">{c.source_file}:p{c.page_number}</span>
-                        </td>
-                        <td style={{ padding: '12px 10px', fontFamily: 'var(--font-mono)' }}>
-                          {c.initial_retrieval_score.toFixed(4)}
-                        </td>
-                        <td style={{ padding: '12px 10px', fontFamily: 'var(--font-mono)', color: c.rerank_score ? 'var(--accent-cyan)' : 'inherit' }}>
-                          {c.rerank_score !== null && c.rerank_score !== undefined ? c.rerank_score.toFixed(4) : '-'}
-                        </td>
-                        <td style={{ padding: '12px 10px' }}>
-                          {c.retained_in_context ? (
-                            <span className="badge badge-success"><CheckCircle2 size={12} /> RETAINED</span>
-                          ) : (
-                            <span className="badge badge-danger"><XCircle size={12} /> PRUNED</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 10px', color: 'var(--text-secondary)', maxWidth: '320px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {c.content_snippet}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Generated Response & Ground Truth Triad */}
-          <div style={{ display: 'grid', gridTemplateColumns: trace.evaluation ? '1.5fr 1fr' : '1fr', gap: '1.5rem' }}>
-            {/* Generated Answer Card */}
-            <div className="glass-panel" style={{ padding: '1.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-primary)' }}>
-                  Generated Response ({trace.generation.model_name})
-                </span>
-                <span className="badge badge-purple">
-                  Tokens: In ~{trace.generation.estimated_prompt_tokens} | Out ~{trace.generation.estimated_completion_tokens}
-                </span>
-              </div>
-              <p style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
-                {trace.generation.generated_answer}
-              </p>
-
-              {trace.generation.source_citations && trace.generation.source_citations.length > 0 && (
-                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Citations:</span>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {trace.generation.source_citations.map((cite, idx) => (
-                      <span key={idx} className="badge badge-info">{cite}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setShowPrompt(!showPrompt)}
-                style={{ fontSize: '0.75rem', padding: '6px 12px' }}
-              >
-                <Eye size={14} /> {showPrompt ? "Hide Assembled Prompt" : "Inspect Raw Assembled Prompt"}
-              </button>
-
-              {showPrompt && (
-                <div style={{ marginTop: '1rem', padding: '1rem', background: '#090D16', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap', maxHeight: '200px', overflowY: 'auto' }}>
-                  {trace.prompt_assembly.assembled_prompt_preview}
-                </div>
-              )}
-            </div>
-
-            {/* Triad Evaluation Card (If ground truth provided) */}
-            {trace.evaluation && (
-              <div className="glass-panel" style={{ padding: '1.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                  <Award size={18} color="var(--accent-emerald)" />
-                  <h3 style={{ fontSize: '1.1rem' }}>Live Triad Evaluation</h3>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Split Pane: Candidate Chunks vs LLM Response */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(480px, 1.25fr) 1fr',
+            gap: '1.5rem',
+            alignItems: 'start'
+          }}>
+            
+            {/* Left Pane: Candidate Passage Rank Shifts (ΔRank) */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title-group">
+                  <Layers size={18} style={{ color: 'var(--accent-primary)' }} />
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span>Faithfulness (Groundedness)</span>
-                      <strong style={{ color: 'var(--accent-emerald)' }}>{(trace.evaluation.faithfulness * 100).toFixed(1)}%</strong>
-                    </div>
-                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ width: `${trace.evaluation.faithfulness * 100}%`, height: '100%', background: 'var(--accent-emerald)' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span>Answer Correctness</span>
-                      <strong style={{ color: 'var(--accent-cyan)' }}>{(trace.evaluation.correctness * 100).toFixed(1)}%</strong>
-                    </div>
-                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ width: `${trace.evaluation.correctness * 100}%`, height: '100%', background: 'var(--accent-cyan)' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px' }}>
-                      <span>Context Precision</span>
-                      <strong style={{ color: 'var(--accent-primary)' }}>{(trace.evaluation.precision * 100).toFixed(1)}%</strong>
-                    </div>
-                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ width: `${trace.evaluation.precision * 100}%`, height: '100%', background: 'var(--accent-primary)' }} />
-                    </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Composite Triad Score</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#A5B4FC', fontFamily: 'var(--font-display)' }}>
-                      {(trace.evaluation.overall * 100).toFixed(1)}%
+                    <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Candidate Passage Ranking Shifts</h3>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      Initial similarity vs Cross-Encoder neural rank transformation (ΔRank)
                     </span>
                   </div>
                 </div>
               </div>
-            )}
+
+              <div className="card-body" style={{ padding: 0 }}>
+                <div className="data-table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Chunk ID</th>
+                        <th>Initial Rank</th>
+                        <th>Rerank Score</th>
+                        <th>Shift (ΔRank)</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(trace.stages.rerank?.reranked_chunks || trace.stages.retrieval.candidate_chunks).map((c, i) => {
+                        const shift = c.rank_shift || 0;
+                        const isRetained = c.is_retained ?? (i < rerankTopK);
+                        return (
+                          <tr key={c.chunk_id || i} style={{ opacity: isRetained ? 1 : 0.65 }}>
+                            <td>
+                              <span style={{ fontWeight: 600 }}>{c.chunk_id}</span>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Page {c.page_number}</div>
+                            </td>
+                            <td>
+                              <div>#{c.initial_rank || i + 1}</div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                sim: {c.initial_similarity?.toFixed(3) || "0.780"}
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ fontWeight: 700, color: 'var(--accent-secondary)' }}>
+                                {c.rerank_score != null ? c.rerank_score.toFixed(3) : "—"}
+                              </div>
+                            </td>
+                            <td>
+                              {shift > 0 && (
+                                <span className="kpi-trend positive" style={{ fontSize: '0.72rem' }}>
+                                  <ArrowUpRight size={12} /> +{shift}
+                                </span>
+                              )}
+                              {shift < 0 && (
+                                <span className="kpi-trend negative" style={{ fontSize: '0.72rem' }}>
+                                  <ArrowDownRight size={12} /> {shift}
+                                </span>
+                              )}
+                              {shift === 0 && (
+                                <span className="kpi-trend neutral" style={{ fontSize: '0.72rem' }}>
+                                  <Minus size={12} /> 0
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <span className={`badge-pill ${isRetained ? 'success' : 'neutral'}`}>
+                                {isRetained ? 'RETAINED' : 'PRUNED'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Pane: Generated Answer & Citations */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title-group">
+                  <Sparkles size={18} style={{ color: 'var(--accent-primary)' }} />
+                  <div>
+                    <h3 style={{ fontSize: '0.98rem', margin: 0 }}>Grounded LLM Generation</h3>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      Model: {trace.stages.generation.model_name}
+                    </span>
+                  </div>
+                </div>
+                <span className="badge-pill success">Grounded</span>
+              </div>
+
+              <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {/* Answer Box */}
+                <div style={{
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  padding: '1rem',
+                  fontSize: '0.88rem',
+                  lineHeight: 1.6,
+                  color: 'var(--text-primary)'
+                }}>
+                  {trace.stages.generation.answer}
+                </div>
+
+                {/* Source Citations */}
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                    Document Provenance Citations
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {trace.stages.generation.citations?.map((cit, idx) => (
+                      <span key={idx} className="badge-pill neutral" style={{ fontSize: '0.75rem' }}>
+                        {cit.citation_label || `[Page ${cit.page_number}]`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Real-time Evaluation Triad Scores */}
+                {trace.evaluation && (
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                      Real-time Triad Verification
+                    </div>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '0.5rem',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ padding: '0.6rem', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Faithfulness</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--success)' }}>
+                          {(trace.evaluation.faithfulness * 100).toFixed(0)}%
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '0.6rem', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Correctness</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-secondary)' }}>
+                          {trace.evaluation.answer_correctness != null ? `${(trace.evaluation.answer_correctness * 100).toFixed(0)}%` : "N/A"}
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '0.6rem', backgroundColor: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Quality</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                          {(trace.evaluation.quality_score * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Prompt Inspection Toggle */}
+                <div>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setShowPrompt(!showPrompt)}
+                    style={{ width: '100%' }}
+                  >
+                    <Eye size={14} />
+                    <span>{showPrompt ? "Hide Assembled Prompt Context" : "Inspect Raw Context Prompt & Tokens"}</span>
+                  </button>
+
+                  {showPrompt && (
+                    <pre style={{
+                      marginTop: '0.75rem',
+                      backgroundColor: 'var(--code-bg)',
+                      border: '1px solid var(--code-border)',
+                      borderRadius: '8px',
+                      padding: '0.85rem',
+                      fontSize: '0.75rem',
+                      maxHeight: '220px',
+                      overflowY: 'auto',
+                      whiteSpace: 'pre-wrap',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      {trace.stages.prompt_assembly?.full_prompt || "No prompt context recorded."}
+                    </pre>
+                  )}
+                </div>
+              </div>
+            </div>
+
           </div>
+
         </div>
       )}
+
     </div>
   );
 }

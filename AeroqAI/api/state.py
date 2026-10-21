@@ -22,6 +22,7 @@ class PipelineState:
     def __init__(self) -> None:
         self.is_initialized = False
         self.cleaned_documents: List[CleanedDocument] = []
+        self.indexed_chunks: list = []
         self.vector_store: Optional[BaseVectorStore] = None
         self.embedder: Optional[BaseEmbeddingGenerator] = None
         self.reranker: Optional[BaseReranker] = None
@@ -53,6 +54,7 @@ class PipelineState:
         if self.cleaned_documents:
             chunker = TextChunker(chunk_size=800, chunk_overlap=60, strategy="recursive")
             chunks = chunker.chunk_documents(self.cleaned_documents)
+            self.indexed_chunks = chunks
             embedded = self.embedder.embed_chunks(chunks)
             self.vector_store.add_chunks(embedded)
 
