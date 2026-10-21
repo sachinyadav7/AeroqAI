@@ -44,7 +44,9 @@ export default function App() {
   };
 
   const handlePrimaryAction = (tab) => {
-    if (tab === 'overview' || tab === 'evaluation') {
+    if (tab === 'datasets') {
+      document.getElementById('datasets-pdf-upload-input')?.click();
+    } else if (tab === 'overview' || tab === 'evaluation') {
       setActiveTab('evaluation');
     } else if (tab === 'workflow' || tab === 'debugger') {
       setActiveTab('debugger');

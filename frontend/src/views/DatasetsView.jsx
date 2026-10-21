@@ -29,6 +29,7 @@ export default function DatasetsView() {
   const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle' | 'uploading' | 'success' | 'error'
   const [uploadResult, setUploadResult] = useState(null);
   const [uploadError, setUploadError] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -109,7 +110,12 @@ export default function DatasetsView() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
             <span className="badge-pill primary">Knowledge Repository</span>
-            <span className="badge-pill success">11 Chunks Indexed</span>
+            <span className="badge-pill success">{corpusData?.total_chunks || 11} Chunks Indexed</span>
+            {corpusData?.document_name && (
+              <span className="badge-pill neutral" style={{ borderColor: 'var(--accent-secondary)' }}>
+                Active: {corpusData.document_name}
+              </span>
+            )}
           </div>
           <h1 style={{ margin: 0, fontSize: '1.75rem' }}>Datasets & Knowledge Base</h1>
           <p style={{ margin: 0, fontSize: '0.88rem' }}>
@@ -122,6 +128,7 @@ export default function DatasetsView() {
             type="file"
             accept=".pdf"
             ref={fileInputRef}
+            id="datasets-pdf-upload-input"
             style={{ display: 'none' }}
             onChange={handleFileUpload}
           />
@@ -142,6 +149,62 @@ export default function DatasetsView() {
             <RotateCcw size={14} />
             <span>Refresh</span>
           </button>
+        </div>
+      </div>
+
+      {/* Prominent Drag & Drop Hero Upload Card */}
+      <div 
+        className="card"
+        style={{
+          border: isDragOver ? '2px dashed var(--accent-primary)' : '2px dashed var(--border)',
+          backgroundColor: isDragOver ? 'var(--accent-primary-muted)' : 'var(--bg-surface-elevated)',
+          padding: '2rem 1.5rem',
+          textAlign: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.75rem',
+          boxShadow: isDragOver ? '0 0 20px rgba(117, 103, 255, 0.3)' : 'none'
+        }}
+        onClick={() => fileInputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+          if (e.dataTransfer.files?.length) {
+            handleFileUpload({ target: { files: e.dataTransfer.files } });
+          }
+        }}
+      >
+        <div style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--accent-primary-muted)',
+          color: 'var(--accent-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 16px rgba(117, 103, 255, 0.25)'
+        }}>
+          <Upload size={26} />
+        </div>
+        <div>
+          <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+            {uploadStatus === 'uploading' ? 'Extracting, Chunking & Indexing PDF...' : 'Upload & Analyze Any Custom PDF'}
+          </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '580px', margin: '0 auto' }}>
+            Drop your PDF here or click to browse. AeroqAI will parse pages, compute 384-dimensional dense vectors, and immediately re-index the RAG pipeline and Debugger.
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.4rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <span className="badge-pill primary">PDF Format Supported</span>
+          <span className="badge-pill success">Instant Vector Embedding</span>
+          <span className="badge-pill neutral">Automated Triad Analysis</span>
         </div>
       </div>
 

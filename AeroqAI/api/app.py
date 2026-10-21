@@ -77,7 +77,7 @@ async def root(request: Request):
     accept = request.headers.get("accept", "")
     index_file = dist_path / "index.html"
     if "text/html" in accept and index_file.exists():
-        return FileResponse(index_file)
+        return FileResponse(index_file, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
     return {
         "platform": "AeroqAI",
@@ -95,7 +95,7 @@ async def serve_ui():
     """Explicit endpoint to serve the React Web Application."""
     index_file = dist_path / "index.html"
     if index_file.exists():
-        return FileResponse(index_file)
+        return FileResponse(index_file, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return {"message": "Frontend distribution not built yet. Run 'npm run build' inside frontend/ directory."}
 
 

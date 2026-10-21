@@ -9,7 +9,8 @@ import {
   Cpu, 
   CheckCircle2, 
   ChevronRight,
-  Database
+  Database,
+  Upload
 } from 'lucide-react';
 
 export default function Topbar({ 
@@ -30,7 +31,7 @@ export default function Topbar({
       case 'evaluation':
         return { section: 'Workspace', title: 'Evaluation Lab & Benchmarks', actionLabel: 'Run Benchmark', actionIcon: Sparkles };
       case 'datasets':
-        return { section: 'Workspace', title: 'Datasets & Knowledge Base', actionLabel: 'Inspect Corpus', actionIcon: Database };
+        return { section: 'Workspace', title: 'Datasets & Knowledge Base', actionLabel: 'Upload Custom PDF', actionIcon: Upload };
       case 'optimizer':
         return { section: 'Optimization', title: 'RAG Optimizer & Pareto Frontier', actionLabel: 'Launch Grid Search', actionIcon: Sparkles };
       case 'experiments':
